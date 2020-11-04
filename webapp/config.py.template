@@ -1,0 +1,28 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+:Mod: config
+
+:Synopsis:
+
+:Author:
+    servilla
+
+:Created:
+    11/4/20
+"""
+
+
+class Config(object):
+
+    # Flask app configuration
+    SECRET_KEY = 'SECRET_KEY'
+    DEBUG = False
+
+    CMD = "command"
+
+    # PASTA event notification servers
+    PRODUCTION = "package.lternet.edu"
+    STAGING = "package-s.lternet.edu"
+    DEVELOPMENT = "package-d.lternet.edu"
