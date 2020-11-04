@@ -127,3 +127,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Pre-commit
+.pre-commit-config.yaml
+
+# Project
+config.py
+.idea
