@@ -1,0 +1,41 @@
+name: ecocom
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - _libgcc_mutex=0.1
+  - ca-certificates=2020.6.20
+  - certifi=2020.6.20
+  - click=7.1.2
+  - daiquiri=2.1.1
+  - flask=1.1.2
+  - icu=67.1
+  - itsdangerous=1.1.0
+  - jansson=2.11
+  - jinja2=2.11.2
+  - ld_impl_linux-64=2.33.1
+  - libedit=3.1.20191231
+  - libffi=3.3
+  - libgcc-ng=9.1.0
+  - libiconv=1.16
+  - libstdcxx-ng=9.1.0
+  - libxml2=2.9.10
+  - markupsafe=1.1.1
+  - ncurses=6.2
+  - openssl=1.1.1h
+  - pcre=8.44
+  - pip=20.2.4
+  - python=3.8.5
+  - python-json-logger=2.0.1
+  - python_abi=3.8
+  - readline=8.0
+  - setuptools=50.3.0
+  - sqlite=3.33.0
+  - tk=8.6.10
+  - uwsgi=2.0.19.1
+  - werkzeug=1.0.1
+  - wheel=0.35.1
+  - xz=5.2.5
+  - yaml=0.2.5
+  - zlib=1.2.11
+prefix: /home/servilla/anaconda3/envs/ecocom

@@ -1,0 +1,11 @@
+name: ecocom
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.8
+  - flask=1.1.2
+  - daiquiri=2.1.1
+  - libiconv=1.16
+  - uwsgi=2.0.19.1
+prefix: /home/servilla/anaconda3/envs/ecocom
