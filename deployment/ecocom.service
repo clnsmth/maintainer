@@ -1,0 +1,13 @@
+[Unit]
+Description=uWSGI instance to serve ecocomDP listening services
+After=network.target
+
+[Service]
+User=pasta
+Group=www-data
+WorkingDirectory=/home/pasta/ecocomDP-listener
+Environment="PATH=/home/pasta/anaconda3/envs/ecocom/bin"
+ExecStart=/home/pasta/anaconda3/envs/ecocom/bin/uwsgi --ini deployment/ecocom.ini
+
+[Install]
+WantedBy=multi-user.target
