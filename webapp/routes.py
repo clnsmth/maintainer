@@ -11,8 +11,12 @@
 :Created:
     5/15/19
 """
+import http
+import socket
+import subprocess
+
 import daiquiri
-from flask import Flask, make_response, redirect, render_template, request, url_for
+from flask import Flask, request
 
 from webapp.config import Config
 
@@ -23,10 +27,43 @@ app = Flask(__name__)
 app.config.from_object(Config)
 
 
+def get_pasta_host(remote: str) -> str:
+    prod_addr = socket.gethostbyname(Config.PRODUCTION)
+    stage_addr = socket.gethostbyname(Config.STAGING)
+    dev_addr = socket.gethostbyname(Config.DEVELOPMENT)
+    if remote == prod_addr:
+        host = Config.PRODUCTION
+    elif remote == stage_addr:
+        host = Config.STAGING
+    elif remote == dev_addr:
+        host = Config.DEVELOPMENT
+    elif Config.DEBUG:
+        host = "any_host"
+    else:
+        host = None
+    return host
+
+
+def is_valid_package_id(package_id: str) -> bool:
+    return len(package_id.split(".")) == 3
+
+
 @app.route("/ecocom-listener", methods=["POST"])
 def ecocom_listener():
-    return "Hello on wheels"
+    r = request
+    remote = request.remote_addr
+    host = get_pasta_host(remote)
+    if host is None:
+        return "Not authorized server", http.HTTPStatus.FORBIDDEN
+    else:
+        package_id = request.data.decode("UTF-8").strip()
+        if is_valid_package_id(package_id):
+            cmd = Config.CMD + " " + package_id
+            subprocess.Popen(cmd, close_fds=True, shell=True)
+            return f"{package_id}\n", http.HTTPStatus.OK
+        else:
+            return "Not valid package identifier", http.HTTPStatus.BAD_REQUEST
 
 
 if __name__ == "__main__":
-    app.run(ssl_context="adhoc")
+    app.run()
