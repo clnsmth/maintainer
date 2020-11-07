@@ -17,8 +17,11 @@ import subprocess
 
 import daiquiri
 from flask import Flask, request
+from sqlalchemy.exc import IntegrityError
 
 from webapp.config import Config
+from webapp.ecocomDP_db import EventDb
+import webapp.mailout as mailout
 
 
 logger = daiquiri.getLogger("routes: " + __name__)
@@ -58,11 +61,25 @@ def ecocom_listener():
     else:
         package_id = request.data.decode("UTF-8").strip()
         if is_valid_package_id(package_id):
+            try:
+                EventDb(Config.PATH + Config.DB).insert_event(package_id, host)
+            except IntegrityError as ex:
+                logger.error(ex)
+                msg = f"EcocomDP database integrity error for: {package_id}"
+                mailout.send_mail(msg, msg, Config.MAIL_TO)
+                return msg, http.HTTPStatus.BAD_REQUEST
+            msg = (
+                f"EcocomDP event for package {package_id} on {host} recorded in EventDB"
+            )
+            mailout.send_mail(msg, msg, Config.MAIL_TO)
             cmd = Config.CMD + " " + package_id
             subprocess.Popen(cmd, close_fds=True, shell=True)
             return f"{package_id}\n", http.HTTPStatus.OK
         else:
-            return "Not valid package identifier", http.HTTPStatus.BAD_REQUEST
+            return (
+                f"Not valid package identifier: {package_id}",
+                http.HTTPStatus.BAD_REQUEST,
+            )
 
 
 if __name__ == "__main__":
