@@ -63,7 +63,6 @@ class EventDb:
             self.session.commit()
             index = e.index
         except IntegrityError as ex:
-            logger.error(ex)
             self.session.rollback()
             raise ex
         return index
@@ -74,7 +73,6 @@ class EventDb:
             e = query.filter(Event.index == index).one()
             return e.index, e.pid, e.env, e.processed
         except IntegrityError as ex:
-            logger.error(ex)
             raise ex
 
     def get_next_event(self, env: str) -> Tuple:
@@ -87,7 +85,6 @@ class EventDb:
             )
             return e.index, e.pid
         except IntegrityError as ex:
-            logger.error(ex)
             raise ex
 
     def set_processed_event(self, index: int):
@@ -97,6 +94,5 @@ class EventDb:
             e.processed = True
             self.session.commit()
         except IntegrityError as ex:
-            logger.error(ex)
             self.session.rollback()
             raise ex
