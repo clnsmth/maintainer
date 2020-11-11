@@ -18,7 +18,7 @@ import daiquiri
 from webapp.config import Config
 
 
-logger = daiquiri.getLogger("mailout: " + __name__)
+logger = daiquiri.getLogger(__name__)
 
 
 def send_mail(subject: str = None, msg: str = None, to: str = None) -> str:

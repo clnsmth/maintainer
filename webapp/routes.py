@@ -12,6 +12,8 @@
     5/15/19
 """
 import http
+import logging
+import os
 import socket
 import subprocess
 
@@ -24,7 +26,10 @@ from webapp.ecocomDP_db import EventDb
 import webapp.mailout as mailout
 
 
-logger = daiquiri.getLogger("routes: " + __name__)
+cwd = os.path.dirname(os.path.realpath(__file__))
+logfile = cwd + "/routes.log"
+daiquiri.setup(level=logging.WARNING, outputs=(daiquiri.output.File(logfile), "stdout"))
+logger = daiquiri.getLogger(__name__)
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -53,10 +58,11 @@ def is_valid_package_id(package_id: str) -> bool:
 
 @app.route("/ecocom-listener", methods=["POST"])
 def ecocom_listener():
-    r = request
     remote = request.remote_addr
     host = get_pasta_host(remote)
     if host is None:
+        msg = f"{host} is not an authorized server"
+        logger.warn(msg)
         return "Not authorized server", http.HTTPStatus.FORBIDDEN
     else:
         package_id = request.data.decode("UTF-8").strip()
@@ -71,15 +77,16 @@ def ecocom_listener():
             msg = (
                 f"EcocomDP event for package {package_id} on {host} recorded in EventDB"
             )
+            logger.warn(msg)
             mailout.send_mail(msg, msg, Config.MAIL_TO)
             cmd = Config.CMD + " " + package_id
             subprocess.Popen(cmd, close_fds=True, shell=True)
             return f"{package_id}\n", http.HTTPStatus.OK
         else:
-            return (
-                f"Not valid package identifier: {package_id}",
-                http.HTTPStatus.BAD_REQUEST,
-            )
+            msg = f"Not valid package identifier: {package_id}"
+            logger.warn(msg)
+            mailout.send_mail(msg, msg, Config.MAIL_TO)
+            return msg, http.HTTPStatus.BAD_REQUEST
 
 
 if __name__ == "__main__":
