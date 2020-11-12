@@ -48,7 +48,7 @@ def get_host(remote: str) -> str:
     elif remote in Config.LOCALHOST:
         host = "localhost"
     elif Config.DEBUG:
-        host = remote
+        host = "localhost"
     else:
         host = None
     return host
