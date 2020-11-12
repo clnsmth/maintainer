@@ -30,6 +30,12 @@ class Config(object):
     STAGING = "package-s.lternet.edu"
     DEVELOPMENT = "package-d.lternet.edu"
 
+    # Localhost
+    LOCALHOST = (
+        "127.0.0.0",
+        "127.0.0.1"
+    )
+
     # GMAIL account information
     GMAIL_NAME = "GMAIL_NAME"
     GMAIL_PASSWORD = "GMAIL_PASSWORD"
