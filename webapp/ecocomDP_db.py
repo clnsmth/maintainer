@@ -76,23 +76,21 @@ class EventDb:
             raise ex
 
     def get_next_event(self, env: str) -> Tuple:
-        try:
-            query = self.session.query(Event)
-            e = (
-                query.filter(Event.env == env, Event.processed.is_(False))
-                .order_by(Event.dt.asc())
-                .first()
-            )
-            return e.index, e.pid
-        except IntegrityError as ex:
-            raise ex
+        query = self.session.query(Event)
+        e = (
+            query.filter(Event.env == env, Event.processed.is_(False))
+            .order_by(Event.dt.asc())
+            .first()
+        )
+        if e is None:
+            raise ValueError("Event not found in EventDB")
+        return e.index, e.pid
 
     def set_processed_event(self, index: int):
-        try:
-            query = self.session.query(Event)
-            e = query.filter(Event.index == index).one()
-            e.processed = True
-            self.session.commit()
-        except IntegrityError as ex:
-            self.session.rollback()
-            raise ex
+        query = self.session.query(Event)
+        e = query.filter(Event.index == index).one()
+        if e is None:
+            raise ValueError("Event not found in EventDB")
+        e.processed = True
+        self.session.commit()
+        return e.pid
