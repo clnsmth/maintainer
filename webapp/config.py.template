@@ -30,6 +30,8 @@ class Config(object):
     STAGING = "package-s.lternet.edu"
     DEVELOPMENT = "package-d.lternet.edu"
 
+    REGAN = "regan.edirepository.org"
+
     # Localhost
     LOCALHOST = (
         "127.0.0.0",

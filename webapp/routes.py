@@ -39,13 +39,14 @@ def get_host(remote: str) -> str:
     prod_addr = socket.gethostbyname(Config.PRODUCTION)
     stage_addr = socket.gethostbyname(Config.STAGING)
     dev_addr = socket.gethostbyname(Config.DEVELOPMENT)
+    regan_addr = socket.gethostbyname(Config.REGAN)
     if remote == prod_addr:
         host = Config.PRODUCTION
     elif remote == stage_addr:
         host = Config.STAGING
     elif remote == dev_addr:
         host = Config.DEVELOPMENT
-    elif remote in Config.LOCALHOST:
+    elif remote in Config.LOCALHOST or remote == regan_addr:
         host = "localhost"
     elif Config.DEBUG:
         host = "localhost"
