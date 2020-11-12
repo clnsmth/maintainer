@@ -35,7 +35,7 @@ app = Flask(__name__)
 app.config.from_object(Config)
 
 
-def get_pasta_host(remote: str) -> str:
+def get_host(remote: str) -> str:
     prod_addr = socket.gethostbyname(Config.PRODUCTION)
     stage_addr = socket.gethostbyname(Config.STAGING)
     dev_addr = socket.gethostbyname(Config.DEVELOPMENT)
@@ -45,8 +45,10 @@ def get_pasta_host(remote: str) -> str:
         host = Config.STAGING
     elif remote == dev_addr:
         host = Config.DEVELOPMENT
+    elif remote in Config.LOCALHOST:
+        host = "localhost"
     elif Config.DEBUG:
-        host = "any_host"
+        host = remote
     else:
         host = None
     return host
@@ -57,13 +59,14 @@ def is_valid_package_id(package_id: str) -> bool:
 
 
 @app.route("/ecocom-listener", methods=["POST"])
-def ecocom_listener():
+def insert_event():
     remote = request.remote_addr
-    host = get_pasta_host(remote)
+    logger.warn(f"Inbound POST from: {remote}")
+    host = get_host(remote)
     if host is None:
         msg = f"{host} is not an authorized server"
         logger.warn(msg)
-        return "Not authorized server", http.HTTPStatus.FORBIDDEN
+        return msg, http.HTTPStatus.FORBIDDEN
     else:
         package_id = request.data.decode("UTF-8").strip()
         if is_valid_package_id(package_id):
@@ -71,17 +74,15 @@ def ecocom_listener():
                 EventDb(Config.PATH + Config.DB).insert_event(package_id, host)
             except IntegrityError as ex:
                 logger.error(ex)
-                msg = f"EcocomDP database integrity error for: {package_id}"
+                msg = f"EventDB integrity error: {package_id} event already recorded"
                 mailout.send_mail(msg, msg, Config.MAIL_TO)
                 return msg, http.HTTPStatus.BAD_REQUEST
-            msg = (
-                f"EcocomDP event for package {package_id} on {host} recorded in EventDB"
-            )
+            msg = f"EcocomDP event recorded: {package_id} on {host}"
             logger.warn(msg)
             mailout.send_mail(msg, msg, Config.MAIL_TO)
             cmd = Config.CMD + " " + package_id
             subprocess.Popen(cmd, close_fds=True, shell=True)
-            return f"{package_id}\n", http.HTTPStatus.OK
+            return msg, http.HTTPStatus.OK
         else:
             msg = f"Not valid package identifier: {package_id}"
             logger.warn(msg)
@@ -89,5 +90,37 @@ def ecocom_listener():
             return msg, http.HTTPStatus.BAD_REQUEST
 
 
-if __name__ == "__main__":
-    app.run()
+@app.route("/ecocom-listener/<env>", methods=["GET"])
+def get_next_event(env: str = None):
+    remote = request.remote_addr
+    logger.warn(f"Inbound GET from: {remote}")
+    host = get_host(remote)
+    if host is None or host != "localhost":
+        msg = f"{host} is not an authorized server"
+        logger.warn(msg)
+        return msg, http.HTTPStatus.FORBIDDEN
+    try:
+        index, package_id = EventDb(Config.PATH + Config.DB).get_next_event(env)
+    except Exception as ex:
+        logger.error(ex)
+        msg = f"Failed to get next event from {env}"
+        return msg, http.HTTPStatus.NOT_FOUND
+    return f"{index},{package_id}", http.HTTPStatus.OK
+
+
+@app.route("/ecocom-listener/<index>", methods=["DELETE"])
+def set_processed(index: str = None):
+    remote = request.remote_addr
+    logger.warn(f"Inbound DELETE from: {remote}")
+    host = get_host(remote)
+    if host is None or host != "localhost":
+        msg = f"{host} is not an authorized server"
+        logger.warn(msg)
+        return msg, http.HTTPStatus.FORBIDDEN
+    try:
+        package_id = EventDb(Config.PATH + Config.DB).set_processed_event(int(index))
+    except Exception as ex:
+        logger.error(ex)
+        msg = f"Failed to remove event with index {index}"
+        return msg, http.HTTPStatus.NOT_FOUND
+    return f"{package_id} set to processed", http.HTTPStatus.OK
