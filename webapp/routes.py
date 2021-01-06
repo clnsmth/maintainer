@@ -125,5 +125,5 @@ def set_processed(index: str = None):
         msg = f"Failed to remove event with index {index}"
         return msg, http.HTTPStatus.NOT_FOUND
     msg = f"{package_id} set to processed"
-    mailout.send_mail(msg, msg, Config.MAIL_TO)
+    # mailout.send_mail(msg, msg, Config.MAIL_TO)
     return msg, http.HTTPStatus.OK
