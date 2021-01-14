@@ -81,7 +81,7 @@ def insert_event():
             msg = f"EcocomDP event recorded: {package_id} on {host}"
             logger.warn(msg)
             mailout.send_mail(msg, msg, Config.MAIL_TO)
-            cmd = Config.CMD + " " + package_id
+            cmd = Config.CMD
             subprocess.Popen(cmd, close_fds=True, shell=True)
             return msg, http.HTTPStatus.OK
         else:
