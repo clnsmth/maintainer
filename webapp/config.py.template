@@ -23,7 +23,7 @@ class Config(object):
     PATH = "PATH"
     TEST_PATH = "TEST_PATH"
     DB = "DB_NAME.sqlite"
-    CMD = "COMMAND"
+    CMD = "/usr/bin/R -e 'ecocomDP::routine_handler(\"/home/USER/ecocomDP-listener/config.R\")'"
 
     # PASTA event notification servers
     PRODUCTION = "package.lternet.edu"
