@@ -112,8 +112,14 @@ def get_next_event(env: str = None):
     elif f == "unprocessed":
         try:
             events = EventDb(Config.PATH + Config.DB).get_all_unprocessed_events(env)
-            unprocessed = "\n".join([f"{_.index},{_.pid}" for _ in events])
-            return unprocessed
+            unprocessed = ""
+            for event in events:
+                unprocessed += f"{event.index},{event.pid}\n"
+            if unprocessed == "":
+                msg = f"No unprocessed events found for the '{env}' environment"
+                return msg, http.HTTPStatus.NOT_FOUND
+            else:
+                return unprocessed, http.HTTPStatus.OK
         except Exception as ex:
             logger.error(ex)
             msg = f"Failed to get all unprocessed events from {env}"
