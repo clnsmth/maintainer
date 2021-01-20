@@ -93,6 +93,7 @@ def insert_event():
 
 @app.route("/ecocom-listener/<env>", methods=["GET"])
 def get_next_event(env: str = None):
+    f = request.args.get("filter")
     remote = request.remote_addr
     logger.warn(f"Inbound GET from: {remote}")
     host = get_host(remote)
@@ -100,13 +101,27 @@ def get_next_event(env: str = None):
         msg = f"{host} is not an authorized server"
         logger.warn(msg)
         return msg, http.HTTPStatus.FORBIDDEN
-    try:
-        index, package_id = EventDb(Config.PATH + Config.DB).get_next_event(env)
-    except Exception as ex:
-        logger.error(ex)
-        msg = f"Failed to get next event from {env}"
-        return msg, http.HTTPStatus.NOT_FOUND
-    return f"{index},{package_id}", http.HTTPStatus.OK
+    if f is None:
+        try:
+            index, package_id = EventDb(Config.PATH + Config.DB).get_next_event(env)
+        except Exception as ex:
+            logger.error(ex)
+            msg = f"Failed to get next event from {env}"
+            return msg, http.HTTPStatus.NOT_FOUND
+        return f"{index},{package_id}", http.HTTPStatus.OK
+    elif f == "unprocessed":
+        try:
+            events = EventDb(Config.PATH + Config.DB).get_all_unprocessed_events(env)
+            unprocessed = "\n".join([f"{_.index},{_.pid}" for _ in events])
+            return unprocessed
+        except Exception as ex:
+            logger.error(ex)
+            msg = f"Failed to get all unprocessed events from {env}"
+            return msg, http.HTTPStatus.INTERNAL_SERVER_ERROR
+    else:
+        msg = f"Unrecognized filter parameter: {f}"
+        logger.error(msg)
+        return msg, http.HTTPStatus.BAD_REQUEST
 
 
 @app.route("/ecocom-listener/<index>", methods=["DELETE"])

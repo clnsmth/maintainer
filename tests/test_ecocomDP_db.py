@@ -79,3 +79,31 @@ def test_set_processed_event(e_db, clean_up):
     index, pid = e_db.get_next_event(Config.STAGING)
     assert index == 6
     assert pid == events[5][0]
+
+
+def test_get_all_unprocessed_events(e_db, clean_up):
+    for event in events:
+        index = e_db.insert_event(event[0], event[1])
+
+    index, pid, env, processed = e_db.get_event(3)
+    assert not processed
+
+    nonprocessed_events = e_db.get_all_unprocessed_events(Config.PRODUCTION)
+    count = 0
+    for e in nonprocessed_events:
+        count += 1
+        if e.env != Config.PRODUCTION:
+            raise ValueError
+    if count != 4:
+        raise ValueError
+
+    e_db.set_processed_event(1)
+
+    nonprocessed_events = e_db.get_all_unprocessed_events(Config.PRODUCTION)
+    count = 0
+    for e in nonprocessed_events:
+        count += 1
+        if e.env != Config.PRODUCTION:
+            raise ValueError
+    if count != 3:
+        raise ValueError

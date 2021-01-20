@@ -28,6 +28,7 @@ from sqlalchemy import (
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm.query import Query
 
 
 logger = daiquiri.getLogger("ecocomDP_db: " + __name__)
@@ -66,6 +67,16 @@ class EventDb:
             self.session.rollback()
             raise ex
         return index
+
+    def get_all_unprocessed_events(self, env: str) -> Query:
+        try:
+            query = self.session.query(Event)
+            q = query.filter(Event.env == env, Event.processed.is_(False)).order_by(
+                Event.dt.asc()
+            )
+            return q
+        except IntegrityError as ex:
+            raise ex
 
     def get_event(self, index: int) -> Tuple:
         try:
