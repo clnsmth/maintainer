@@ -88,9 +88,9 @@ def test_get_all_unprocessed_events(e_db, clean_up):
     index, pid, env, processed = e_db.get_event(3)
     assert not processed
 
-    nonprocessed_events = e_db.get_all_unprocessed_events(Config.PRODUCTION)
+    unprocessed_events = e_db.get_all_unprocessed_events(Config.PRODUCTION)
     count = 0
-    for e in nonprocessed_events:
+    for e in unprocessed_events:
         count += 1
         if e.env != Config.PRODUCTION:
             raise ValueError
@@ -99,9 +99,9 @@ def test_get_all_unprocessed_events(e_db, clean_up):
 
     e_db.set_processed_event(1)
 
-    nonprocessed_events = e_db.get_all_unprocessed_events(Config.PRODUCTION)
+    unprocessed_events = e_db.get_all_unprocessed_events(Config.PRODUCTION)
     count = 0
-    for e in nonprocessed_events:
+    for e in unprocessed_events:
         count += 1
         if e.env != Config.PRODUCTION:
             raise ValueError
