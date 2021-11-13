@@ -238,7 +238,7 @@ convert_missing_value <- function(v, code, type) {
 
 
 
-#' Delete item from ecocomDP-listener queue
+#' Delete item from ecocomDP-maintainer queue
 #'
 #' @param index (integer) Index of item to remove
 #' @param id (character) Data package identifier, corresponding with \code{index}, to remove
@@ -271,11 +271,11 @@ delete_from_queue <- function(index, id) {
 
 
 
-#' Get next item in ecocomDP-listener queue
+#' Get next item in ecocomDP-maintainer queue
 #' 
 #' @param filter (character) If "unprocessed" a full list of unprocessed items are returned.
 #' 
-#' @details The queue is /webapp/ecocomDP.sqlite in \href{https://github.com/EDIorg/ecocomDP-listener}{ecocomDP-listener} and is accessible via HTTP GET.
+#' @details The queue is /webapp/ecocomDP.sqlite in \href{https://github.com/EDIorg/ecocomDP-maintainer}{ecocomDP-maintainer} and is accessible via HTTP GET.
 #'
 #' @return
 #' \item{index}{(integer) Index of item in queue. Is later used for removing the item from the queue.}
@@ -321,7 +321,7 @@ get_from_queue <- function(filter = NULL) {
 #' @return (character) \code{packageId} of child
 #'
 get_child <- function(id) {
-  map <- read.csv("./ecocomDP-listener/webapp/map.csv", na.strings = c("", "NA"))
+  map <- read.csv("./ecocomDP-maintainer/webapp/map.csv", na.strings = c("", "NA"))
   id <- paste(unlist(strsplit(id, "\\."))[1:2], collapse = ".")
   i <- (map$tier == config.environment) & (map$parent == id)
   scope <- unlist(strsplit(map$child[i], "\\."))[1]
@@ -399,7 +399,7 @@ get_previous_version <- function(package.id) {
 #' @return (character) Name of workflow
 #'
 get_workflow <- function(id) {
-  map <- read.csv("./ecocomDP-listener/webapp/map.csv", na.strings = c("", "NA"))
+  map <- read.csv("./ecocomDP-maintainer/webapp/map.csv", na.strings = c("", "NA"))
   id <- paste(unlist(strsplit(id, "\\."))[1:2], collapse = ".")
   i <- (map$tier == config.environment) & (map$parent == id)
   res <- map$workflow[i]
@@ -412,7 +412,7 @@ get_workflow <- function(id) {
 
 
 
-#' Check if earlier unprocessed versions of a data package are in the ecocomDP-listener queue
+#' Check if earlier unprocessed versions of a data package are in the ecocomDP-maintainer queue
 #'
 #' The presence of such items may indicate the integrity of a data package series is compromised and processing should be halted until the issue is fixed.
 #'

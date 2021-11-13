@@ -17,7 +17,7 @@ routine_handler <- function() {
   # Check lock ----------------------------------------------------------------
   
   # Stop if a routine is in progress
-  lockfile <- "./ecocomDP-listener/temp/lock.txt"
+  lockfile <- "./ecocomDP-maintainer/temp/lock.txt"
   if (file.exists(lockfile)) {
     return(NULL)
   }
@@ -37,7 +37,7 @@ routine_handler <- function() {
   
   # Create file
   log_file <- paste0("log_", format(Sys.time(), "%Y%m%d_%H%M%S"), ".txt")
-  log <- file(paste0("./ecocomDP-listener/logs/", log_file), open = "wt")
+  log <- file(paste0("./ecocomDP-maintainer/logs/", log_file), open = "wt")
   sink(log, type = "message")
   message("----- Starting routine_handler() at ", Sys.time())
   on.exit(message("----- Copying ", log_file, " to ./logs"), add = TRUE)
@@ -55,7 +55,7 @@ routine_handler <- function() {
     send_email(
       from = config.email.address,
       to = config.email.address,
-      attachment = paste0("./ecocomDP-listener/", log_file),
+      attachment = paste0("./ecocomDP-maintainer/", log_file),
       smtp.relay = "smtp.gmail.com",
       relay.user = config.email.address,
       relay.user.pass = config.email.pass,
@@ -80,7 +80,7 @@ routine_handler <- function() {
   # Identify routine ----------------------------------------------------------
   
   # Look up the routine/workflow to call for this data package. The info is
-  # stored in ./ecocomDP-listener/webapp/map.csv
+  # stored in ./ecocomDP-maintainer/webapp/map.csv
   workflow <- get_workflow(new_pkg$id)
 
   # Check series integrity ----------------------------------------------------
