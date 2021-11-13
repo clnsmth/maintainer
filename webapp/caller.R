@@ -1,11 +1,9 @@
-# This script is called by the listener when an update to a subscription occurs
+# This script is called by the listener whenever an update to a subscribed data
+# package occurs
 
-# Load configuration variables
-source("./ecocomDP-maintainer/webapp/config_workflows.txt") # TODO convert to relative and stable path
-
-# Source functions used by the routine handler
+# Source workflow configuration variables and functions
 scripts <- list.files("./ecocomDP-maintainer/workflows", full.names = TRUE)
 invisible(sapply(scripts, source))
 
-# Call the routine handler
+# Call the top level function that manages all workflows
 routine_handler()

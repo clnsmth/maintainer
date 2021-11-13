@@ -111,4 +111,4 @@ config.R
 .idea
 .Rproj.user
 ecocomDP-maintainer.Rproj
-*config_workflows.txt
+*config.txt
