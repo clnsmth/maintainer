@@ -72,10 +72,10 @@ routine_handler <- function() {
   }
   message("----- Processing ", new_pkg$id)
   
-  # Identify child ------------------------------------------------------------
+  # Identify derived ------------------------------------------------------------
   
-  # Identify the child data package to be create from this one
-  child <- get_child(new_pkg$id)
+  # Identify the derived data package to be create from this one
+  derived <- get_child(new_pkg$id)
   
   # Identify routine ----------------------------------------------------------
   
@@ -121,7 +121,7 @@ routine_handler <- function() {
     
     update_L1(
       id.L0.newest = new_pkg$id,
-      id.L1.newest = child,
+      id.L1.newest = derived,
       path = config.path, 
       url = config.path, 
       user.id = config.user.id,

@@ -1,6 +1,6 @@
 #' Download and source L0 to L1 conversion script
 #'
-#' @param eml (xml_document xml_node) EML of newest L1 child. The L0-to-L1 conversion script listed in \code{eml} will be used to create the child of the newest L0.
+#' @param eml (xml_document xml_node) EML of newest L1 derived. The L0-to-L1 conversion script listed in \code{eml} will be used to create the child of the newest L0.
 #' @param path (character) Directory to which create_ecocomDP.R will be written. Should be the same directory tables and metadata will be written to.
 #' 
 #' @details The script is downloaded \code{path} and then parsed to identify R libraries used by the script which are installed if not already.
@@ -121,10 +121,10 @@ run_conversion_script <- function(path,
 
 #' Update L1 from updated L0
 #'
-#' @description Updates an L1 data package when it's L0 parent data package has been updated. This function is a wrapper to several subroutines.
+#' @description Updates an L1 data package when it's L0 source data package has been updated. This function is a wrapper to several subroutines.
 #'
 #' @param id.L0.newest (character) Identifier of newest L0 data package.
-#' @param id.L1.newest (character) Identifier of L0's newest L1 child to be created by this function. The L0-to-L1 conversion script of \code{id.L1.newest} will be used to create the child of \code{id.L0.newest}.
+#' @param id.L1.newest (character) Identifier of L0's newest L1 derived to be created by this function. The L0-to-L1 conversion script of \code{id.L1.newest} will be used to create the child of \code{id.L0.newest}.
 #' @param path (character) Directory to which L1 tables, scripts, and metadata will be written.
 #' @param url (character) Publicly accessible URL to \code{path} for download by a data repository.
 #' @param user.id (character) User identifier within a specified \code{repository}. This controls editing access in some \code{repository}.

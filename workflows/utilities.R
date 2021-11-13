@@ -314,18 +314,18 @@ get_from_queue <- function(filter = NULL) {
 
 
 
-#' Get name of child from map.csv
+#' Get name of derived from map.csv
 #'
 #' @param packageId (character) Package ID with the form "scope.identifier.revision"
 #'
-#' @return (character) \code{packageId} of child
+#' @return (character) \code{packageId} of derived
 #'
-get_child <- function(id) {
+get_derived <- function(id) {
   map <- read.csv("./ecocomDP-maintainer/webapp/map.csv", na.strings = c("", "NA"))
   id <- paste(unlist(strsplit(id, "\\."))[1:2], collapse = ".")
-  i <- (map$tier == config.environment) & (map$parent == id)
-  scope <- unlist(strsplit(map$child[i], "\\."))[1]
-  identifier <- unlist(strsplit(map$child[i], "\\."))[2]
+  i <- (map$tier == config.environment) & (map$source == id)
+  scope <- unlist(strsplit(map$derived[i], "\\."))[1]
+  identifier <- unlist(strsplit(map$derived[i], "\\."))[2]
   revision <- EDIutils::list_data_package_revisions(
     scope,
     identifier,
@@ -401,7 +401,7 @@ get_previous_version <- function(package.id) {
 get_workflow <- function(id) {
   map <- read.csv("./ecocomDP-maintainer/webapp/map.csv", na.strings = c("", "NA"))
   id <- paste(unlist(strsplit(id, "\\."))[1:2], collapse = ".")
-  i <- (map$tier == config.environment) & (map$parent == id)
+  i <- (map$tier == config.environment) & (map$source == id)
   res <- map$workflow[i]
   return(res)
 }
