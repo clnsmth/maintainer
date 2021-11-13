@@ -1,4 +1,4 @@
-# Global variables for controlling API methods and other remotes in ecocomDP functions. Primarily supporting routine_handler() and associated sub-processes.
+# Global variables for for workflows
 
 config.repository <- "EDI" # Repository system. Options: "EDI"
 config.environment <- "staging" # Repository environment. config.repository can have multiple environments. Options: "staging", "production"

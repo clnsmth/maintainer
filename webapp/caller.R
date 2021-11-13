@@ -6,4 +6,4 @@ scripts <- list.files("./ecocomDP-maintainer/workflows", full.names = TRUE)
 invisible(sapply(scripts, source))
 
 # Call the top level function that manages all workflows
-routine_handler()
+workflow_manager()

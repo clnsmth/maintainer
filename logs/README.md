@@ -1,3 +1,3 @@
 # /logs
 
-A directory for processing logs created by the routine_handler() function.
+A directory for processing logs created by the workflow_manager() function.

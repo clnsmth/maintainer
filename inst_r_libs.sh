@@ -1,6 +1,6 @@
 #!/bin/bash
 # This script will install R and related linux dependencies used by the 
-# routine_handler function called by ./webapp/config.py
+# workflow_manager() function called by ./webapp/config.py
 
 # Install linux libs required by R libs
 sudo apt install libv8-dev

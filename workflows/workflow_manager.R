@@ -1,4 +1,4 @@
-#' A top level function for handling sub-routines
+#' A top level function for handling workflows
 #' 
 #' @description This function performs a number of steps standard to any 
 #' automated workflow including:
@@ -12,7 +12,7 @@
 #'   \item Clean up - Removing temporary files after a run
 #' }
 #'
-routine_handler <- function() {
+workflow_manager <- function() {
   
   # Check lock ----------------------------------------------------------------
   
@@ -39,14 +39,14 @@ routine_handler <- function() {
   log_file <- paste0("log_", format(Sys.time(), "%Y%m%d_%H%M%S"), ".txt")
   log <- file(paste0("./ecocomDP-maintainer/logs/", log_file), open = "wt")
   sink(log, type = "message")
-  message("----- Starting routine_handler() at ", Sys.time())
+  message("----- Starting workflow_manager() at ", Sys.time())
   on.exit(message("----- Copying ", log_file, " to ./logs"), add = TRUE)
   on.exit(
     file.copy(
       from = paste0(config.path, "/", log_file),
       to = paste0(dirname(config.path), "/logs/", log_file)),
     add = TRUE)
-  on.exit(message("----- Exiting routine_handler() at ", Sys.time()), add = TRUE)
+  on.exit(message("----- Exiting workflow_manager() at ", Sys.time()), add = TRUE)
   on.exit(sink(type = "message"), add = TRUE)
   on.exit(close(log), add = TRUE)
   
@@ -60,7 +60,7 @@ routine_handler <- function() {
       relay.user = config.email.address,
       relay.user.pass = config.email.pass,
       subject = log_file,
-      msg = "Log file from routine_handler\\(\\) is attached"),
+      msg = "Log file from workflow_manager\\(\\) is attached"),
     add = TRUE)
   
   # Get next item from queue --------------------------------------------------

@@ -1,3 +1,3 @@
 # /temp
 
-A directory for temporarily staging routine_handler.R results. This directory is emptied after each run.
+A directory for temporarily staging workflow_manager() results. This directory is emptied after each run.
