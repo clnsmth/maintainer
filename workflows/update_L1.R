@@ -168,6 +168,5 @@ run_conversion_script <- function(path,
     path = path,
     package.id.L0 = id.L0.newest, 
     package.id.L1 = id.L1.next, 
-    environment = environment,
     url = url)
 }
