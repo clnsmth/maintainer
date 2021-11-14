@@ -112,7 +112,7 @@ workflow_manager <- function() {
         environment = config.environment)
       message(
         capture.output(
-          compare_eml(eml_newest, eml_previous, return.all = TRUE)))
+          compare_eml(eml_newest, eml_previous, return.all = FALSE)))
     }
     
     # Identify workflow -------------------------------------------------------
