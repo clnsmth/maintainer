@@ -1,43 +1,50 @@
-#' A top level function for handling workflows
+#' A top level function for managing workflows
 #' 
-#' @description This function performs a number of steps standard to any 
-#' automated workflow including:
+#' @details This function:
 #' \itemize{
-#'   \item Routine locking - To prevent multiple routines from running at the same time
-#'   \item File logging - For diagnosing issues if they arise
-#'   \item Emailing - For notification of a run and for shipping the log file
-#'   \item Workflow mapping - For correctly identifying the source and derived data packages and the workflow to call
-#'   \item Series integrity checks - As a fail safe against asynchronous processing
-#'   \item Source differencing - To identify changes in the source data package that may break a workflow
-#'   \item Clean up - Removing temporary files after a run
+#'   \item Stops if another workflow is in progress - Running multiple 
+#'   workflows at the same time can cause issues.
+#'   \item Logs messages/warnings/errors to file - Provides a basis for trouble 
+#'   shooting.
+#'   \item Identifies the updated source data package - Updates are stored in
+#'   a queue and are processed in order.
+#'   \item Stops if an earlier version has not been processed - It's possible 
+#'   (though unlikely) for the queue to be out of order.
+#'   \item Looks for meaningful differences with the previous version - Data 
+#'   packages can change and modifications to data structure may break a 
+#'   workflow and changes to semantic meaning may produce misleading results.
+#'   \item Identifies the workflow(s) to call - An explicit mapping is used to 
+#'   process source data packages into their derived form(s).
+#'   \item Runs the workflow(s) - Loads the workflow then runs it.
+#'   \item Emails the run log to project maintainers - Tells project 
+#'   maintainers that a workflow ran and if any issues occured.
+#'   \item Cleans up the workspace - For the next run.
 #' }
 #'
 workflow_manager <- function() {
   
-  # Check lock ----------------------------------------------------------------
+  # Lock processing -----------------------------------------------------------
   
-  # Stop if a routine is in progress
-  lockfile <- "./ecocomDP-maintainer/temp/lock.txt"
+  # Stop if another workflow is already running
+  lockfile <- "./temp/lock.txt"
   if (file.exists(lockfile)) {
     return(NULL)
   }
   
-  # Lock ----------------------------------------------------------------------
-  
-  # Keep another routine from running while this one is
+  # Stop other workflows from running while this one is
   invisible(file.create(lockfile))
   on.exit(file.remove(lockfile), add = TRUE)
   
   # Initialize logging --------------------------------------------------------
   
-  # Return warnings in a form that can be logged
+  # Return warnings in a form that can be logged to file
   default <- getOption("warn")
   on.exit(options(warn = default), add = TRUE)
   options(warn = 1)
   
-  # Create file
+  # Create the log file and start logging
   log_file <- paste0("log_", format(Sys.time(), "%Y%m%d_%H%M%S"), ".txt")
-  log <- file(paste0("./ecocomDP-maintainer/logs/", log_file), open = "wt")
+  log <- file(paste0("./logs/", log_file), open = "wt")
   sink(log, type = "message")
   message("----- Starting workflow_manager() at ", Sys.time())
   on.exit(message("----- Copying ", log_file, " to ./logs"), add = TRUE)
@@ -50,12 +57,12 @@ workflow_manager <- function() {
   on.exit(sink(type = "message"), add = TRUE)
   on.exit(close(log), add = TRUE)
   
-  # Email
+  # Email the log file when the workflow completes
   on.exit(
     send_email(
       from = config.email.address,
       to = config.email.address,
-      attachment = paste0("./ecocomDP-maintainer/", log_file),
+      attachment = paste0("./logs/", log_file),
       smtp.relay = "smtp.gmail.com",
       relay.user = config.email.address,
       relay.user.pass = config.email.pass,
@@ -63,39 +70,46 @@ workflow_manager <- function() {
       msg = "Log file from workflow_manager\\(\\) is attached"),
     add = TRUE)
   
-  # Get next item from queue --------------------------------------------------
+  # While --------------------------------------
+  # TODO Iterate over all items in queue. Run while the queue has unprocessed 
+  # items
+  #
+  # queue <- data.frame(
+  #   id = c(1,2,3,4,5),
+  #   unprocessed = c(T,T,T,T,T),
+  #   stringsAsFactors = FALSE)
+  # 
+  # queue_has_unprocessed <- function(queue) {
+  #   return(any(queue$unprocessed))
+  # }
+  # 
+  # while (queue_has_unprocessed(queue)) {
+  #   message("Processing")
+  #   i <- which(queue$unprocessed == TRUE)
+  #   queue$unprocessed[i[1]] <- FALSE
+  # }
   
-  # Get the new data package from the queue. Stop if there is none.
+  # Identify the update -------------------------------------------------------
+  
+  # Query the queue for an updated data package and stop if there is none
   new_pkg <- get_from_queue()
   if (is.null(new_pkg)) {
     return(NULL)
   }
   message("----- Processing ", new_pkg$id)
   
-  # Identify derived ------------------------------------------------------------
-  
-  # Identify the derived data package to be create from this one
-  derived <- get_child(new_pkg$id)
-  
-  # Identify routine ----------------------------------------------------------
-  
-  # Look up the routine/workflow to call for this data package. The info is
-  # stored in ./ecocomDP-maintainer/webapp/map.csv
-  workflow <- get_workflow(new_pkg$id)
-
   # Check series integrity ----------------------------------------------------
   
-  # Stop if any earlier revisions of this data package have not been processed
+  # Stop if any earlier versions haven't been processed
   message("----- Checking series integrity")
   if (has_unprocessed_versions(new_pkg$id)) {
     return(NULL)
   }
   
-  # Compare source versions ---------------------------------------------------
+  # Compare versions ----------------------------------------------------------
   
+  # Compare metadata
   previous_version <- get_previous_version(new_pkg$id)
-  
-  # Compare EML
   message("----- Comparing EML (Looking for meaningful changes between ",
           "newest and previous versions)")
   eml_newest <- EDIutils::read_metadata(new_pkg$id, "staging") # TODO control tier with env vars
@@ -104,17 +118,24 @@ workflow_manager <- function() {
     capture.output(
       compare_eml(eml_newest, eml_previous, return.all = F)))
   
-  # Compare tables
-  message("----- Comparing data tables (Looking for meaningful changes ",
-          "between newest and previous versions)")
-  tables_L0_newest <- read_tables(eml_newest)
-  tables_L0_previous <- read_tables(eml_previous)
-  message(
-    capture.output(
-      compare_tables(tables_L0_newest, tables_L0_previous)))
+  # Identify workflow ---------------------------------------------------------
   
-   # Run workflow --------------------------------------------------------------
+  # Look in ./webapp/map.csv for the workflow to call
+  workflow <- get_workflow(new_pkg$id)
+  # - If not in the workflow map.csv, then send a detailed error message, stop
+  # the workflow_manager(), and request a manual restart to fix.
   
+  # Run workflow --------------------------------------------------------------
+  
+  # TODO add iteration for when more than one derived per source
+  
+  # Identify derived
+  # TODO Might not have derived data package
+  # TODO Move into workflow???
+  # Identify the derived data package to be create from this one
+  derived <- get_child(new_pkg$id)
+  
+  # TODO Clear workspace after each workflow run
   if (workflow == "update_L1") {
     
     message("----- ", new_pkg$id, " is an L0")
@@ -142,13 +163,13 @@ workflow_manager <- function() {
     
   }
   
-  # Delete from queue ---------------------------------------------------------
+  # Clean workspace -----------------------------------------------------------
   
+  # Delete the update from the queue
   message("----- Deleting from queue")
   r <- delete_from_queue(new_pkg$index, new_pkg$id)
   
-  # Clear workspace -----------------------------------------------------------
-  
+  # Remove temporary files
   on.exit(file.remove(list.files(config.path, full.names = T)), add = TRUE)
   
   return(NULL)

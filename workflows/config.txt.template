@@ -2,7 +2,7 @@
 
 config.repository <- "EDI" # Repository system. Options: "EDI"
 config.environment <- "staging" # Repository environment. config.repository can have multiple environments. Options: "staging", "production"
-config.path <- "./ecocomDP-maintainer/temp" # Path to directory where outputs are written
+config.path <- "./temp" # Path to directory where outputs are written
 config.www <- "https://some/url" # URL to config.path through which config.repository can download files 
 config.user.id <- "me" # User ID for publishing to config.repository
 config.user.pass <- "mypass" # User password for publishing to config.repository

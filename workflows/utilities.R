@@ -321,7 +321,7 @@ get_from_queue <- function(filter = NULL) {
 #' @return (character) \code{packageId} of derived
 #'
 get_derived <- function(id) {
-  map <- read.csv("./ecocomDP-maintainer/webapp/map.csv", na.strings = c("", "NA"))
+  map <- read.csv("./webapp/map.csv", na.strings = c("", "NA"))
   id <- paste(unlist(strsplit(id, "\\."))[1:2], collapse = ".")
   i <- (map$tier == config.environment) & (map$source == id)
   scope <- unlist(strsplit(map$derived[i], "\\."))[1]
@@ -399,7 +399,7 @@ get_previous_version <- function(package.id) {
 #' @return (character) Name of workflow
 #'
 get_workflow <- function(id) {
-  map <- read.csv("./ecocomDP-maintainer/webapp/map.csv", na.strings = c("", "NA"))
+  map <- read.csv("./webapp/map.csv", na.strings = c("", "NA"))
   id <- paste(unlist(strsplit(id, "\\."))[1:2], collapse = ".")
   i <- (map$tier == config.environment) & (map$source == id)
   res <- map$workflow[i]
