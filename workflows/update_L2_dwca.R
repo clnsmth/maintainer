@@ -52,6 +52,7 @@ update_L2_dwca <- function(id.L1.newest,
     user.pass = user.pass)
   
   # Clear workspace
+  message("----- Clearing workspace")
   file.remove(list.files(config.path, full.names = T))
   
 }
