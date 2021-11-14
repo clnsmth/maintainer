@@ -1,6 +1,6 @@
 #' A top level function for managing workflows
 #' 
-#' @details This function:
+#' @description This function:
 #' \itemize{
 #'   \item Stops if another workflow is in progress - Running multiple 
 #'   workflows at the same time can cause issues.
@@ -20,6 +20,12 @@
 #'   maintainers that a workflow ran and if any issues occured.
 #'   \item Cleans up the workspace - For the next run.
 #' }
+#' 
+#' 
+#' @details 
+#' Fragile processes within this function are wrapped in \code{on.exit()} to 
+#' ensure they are executed. Examples include: Logging, emailing, default 
+#' settings.
 #'
 workflow_manager <- function() {
   
@@ -70,108 +76,100 @@ workflow_manager <- function() {
       msg = "Log file from workflow_manager\\(\\) is attached"),
     add = TRUE)
   
-  # While --------------------------------------
-  # TODO Iterate over all items in queue. Run while the queue has unprocessed 
-  # items
-  #
-  # queue <- data.frame(
-  #   id = c(1,2,3,4,5),
-  #   unprocessed = c(T,T,T,T,T),
-  #   stringsAsFactors = FALSE)
-  # 
-  # queue_has_unprocessed <- function(queue) {
-  #   return(any(queue$unprocessed))
-  # }
-  # 
-  # while (queue_has_unprocessed(queue)) {
-  #   message("Processing")
-  #   i <- which(queue$unprocessed == TRUE)
-  #   queue$unprocessed[i[1]] <- FALSE
-  # }
-  
-  # Identify the update -------------------------------------------------------
-  
-  # Query the queue for an updated data package and stop if there is none
-  new_pkg <- get_from_queue()
-  if (is.null(new_pkg)) {
-    return(NULL)
+  # Run while the queue has unprocessed items. It's possible for the queue to 
+  # gain additional updates while the workflow_manager() is running, and 
+  # because the listener only calls upon receiving an update, these updates
+  # wouldn't get processed.
+  while(!queue_is_empty()) {
+    
+    # Identify the update -----------------------------------------------------
+    
+    # Query the queue for an updated data package and stop if there is none
+    message("----- Checking the queue for updates")
+    new_pkg <- get_from_queue()
+    if (is.null(new_pkg)) {
+      message("No update found")
+      return(NULL)
+    }
+    message("----- Processing ", new_pkg$id)
+    
+    # Check series integrity --------------------------------------------------
+    
+    # Stop if any earlier versions haven't been processed
+    message("----- Checking series integrity")
+    if (has_unprocessed_versions(new_pkg$id)) {
+      return(NULL)
+    }
+    
+    # Compare versions --------------------------------------------------------
+    
+    # Compare metadata
+    previous_version <- get_previous_version(new_pkg$id)
+    message("----- Comparing EML (Looking for meaningful changes between ",
+            "newest and previous versions)")
+    eml_newest <- EDIutils::read_metadata(new_pkg$id, "staging") # TODO control tier with env vars
+    eml_previous <- EDIutils::read_metadata(previous_version, "staging") # TODO control tier with env vars
+    message(
+      capture.output(
+        compare_eml(eml_newest, eml_previous, return.all = F)))
+    
+    # Identify workflow -------------------------------------------------------
+    
+    # Look in ./webapp/map.csv for the workflow to call
+    workflow <- get_workflow(new_pkg$id)
+    # - If not in the workflow map.csv, then send a detailed error message, stop
+    # the workflow_manager(), and request a manual restart to fix.
+    
+    # Run workflow ------------------------------------------------------------
+    
+    # TODO add iteration for when more than one derived per source
+    
+    # Identify derived
+    # TODO Might not have derived data package
+    # TODO Move into workflow???
+    # Identify the derived data package to be create from this one
+    derived <- get_child(new_pkg$id)
+    
+    # TODO Clear workspace after each workflow run
+    if (workflow == "update_L1") {
+      
+      message("----- ", new_pkg$id, " is an L0")
+      
+      update_L1(
+        id.L0.newest = new_pkg$id,
+        id.L1.newest = derived,
+        path = config.path, 
+        url = config.path, 
+        user.id = config.user.id,
+        user.pass = config.user.pass)
+      
+    } else if (workflow == "update_L2") {
+      
+      message("----- ", new_pkg$id, " is an L1")
+      
+      update_L2_dwca(
+        id.L1.newest = new_pkg$id,
+        id.L2.next = increment_package_version(names(new_pkg$parent_of_dwcae)),
+        core.name = "event",
+        path = config.path,
+        url = config.www,
+        user.id = config.user.id,
+        user.pass = config.user.pass)
+      
+    }
+    
+    # Clean workspace ---------------------------------------------------------
+    
+    # Delete the update from the queue
+    message("----- Deleting from queue")
+    r <- delete_from_queue(new_pkg$index, new_pkg$id)
+    
+    # Remove temporary files
+    # TODO remove temporary files after run & on.exit
+    on.exit(file.remove(list.files(config.path, full.names = T)), add = TRUE)
+
   }
-  message("----- Processing ", new_pkg$id)
-  
-  # Check series integrity ----------------------------------------------------
-  
-  # Stop if any earlier versions haven't been processed
-  message("----- Checking series integrity")
-  if (has_unprocessed_versions(new_pkg$id)) {
-    return(NULL)
-  }
-  
-  # Compare versions ----------------------------------------------------------
-  
-  # Compare metadata
-  previous_version <- get_previous_version(new_pkg$id)
-  message("----- Comparing EML (Looking for meaningful changes between ",
-          "newest and previous versions)")
-  eml_newest <- EDIutils::read_metadata(new_pkg$id, "staging") # TODO control tier with env vars
-  eml_previous <- EDIutils::read_metadata(previous_version, "staging") # TODO control tier with env vars
-  message(
-    capture.output(
-      compare_eml(eml_newest, eml_previous, return.all = F)))
-  
-  # Identify workflow ---------------------------------------------------------
-  
-  # Look in ./webapp/map.csv for the workflow to call
-  workflow <- get_workflow(new_pkg$id)
-  # - If not in the workflow map.csv, then send a detailed error message, stop
-  # the workflow_manager(), and request a manual restart to fix.
-  
-  # Run workflow --------------------------------------------------------------
-  
-  # TODO add iteration for when more than one derived per source
-  
-  # Identify derived
-  # TODO Might not have derived data package
-  # TODO Move into workflow???
-  # Identify the derived data package to be create from this one
-  derived <- get_child(new_pkg$id)
-  
-  # TODO Clear workspace after each workflow run
-  if (workflow == "update_L1") {
-    
-    message("----- ", new_pkg$id, " is an L0")
-    
-    update_L1(
-      id.L0.newest = new_pkg$id,
-      id.L1.newest = derived,
-      path = config.path, 
-      url = config.path, 
-      user.id = config.user.id,
-      user.pass = config.user.pass)
-    
-  } else if (workflow == "update_L2") {
-    
-    message("----- ", new_pkg$id, " is an L1")
-    
-    update_L2_dwca(
-      id.L1.newest = new_pkg$id,
-      id.L2.next = increment_package_version(names(new_pkg$parent_of_dwcae)),
-      core.name = "event",
-      path = config.path,
-      url = config.www,
-      user.id = config.user.id,
-      user.pass = config.user.pass)
-    
-  }
-  
-  # Clean workspace -----------------------------------------------------------
-  
-  # Delete the update from the queue
-  message("----- Deleting from queue")
-  r <- delete_from_queue(new_pkg$index, new_pkg$id)
-  
-  # Remove temporary files
-  on.exit(file.remove(list.files(config.path, full.names = T)), add = TRUE)
-  
+
   return(NULL)
   
 }
