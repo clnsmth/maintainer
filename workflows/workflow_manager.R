@@ -122,7 +122,7 @@ workflow_manager <- function() {
     
     # Identify workflow -------------------------------------------------------
     
-    # Get name of the workflow to run from ./maintainer/webapp/map.csv
+    # Get name of the workflow to run from ./maintainer/webapp/workflow_map.csv
     message("----- Identifying workflow(s)")
     workflows <- get_workflows(new_pkg$id)
     if (is.null(workflows)) {

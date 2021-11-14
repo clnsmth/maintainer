@@ -110,5 +110,5 @@ config.py
 config.R
 .idea
 .Rproj.user
-ecocomDP-maintainer.Rproj
+maintainer.Rproj
 *config.txt

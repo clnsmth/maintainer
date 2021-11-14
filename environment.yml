@@ -1,4 +1,4 @@
-name: ecocom
+name: maintainer
 channels:
   - defaults
   - conda-forge
@@ -49,4 +49,4 @@ dependencies:
   - xz=5.2.5
   - yaml=0.2.5
   - zlib=1.2.11
-prefix: /home/servilla/anaconda3/envs/ecocom
+prefix: /home/servilla/anaconda3/envs/maintainer

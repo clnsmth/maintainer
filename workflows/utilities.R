@@ -167,7 +167,7 @@ delete_from_queue <- function(index, id) {
 
 
 
-#' Get name of derived data package from map.csv
+#' Get name of derived data package from workflow_map.csv
 #'
 #' @param package.id (character) Package ID with the form 
 #' "scope.identifier.revision"
@@ -175,7 +175,7 @@ delete_from_queue <- function(index, id) {
 #' @return (character) \code{package.id} of derived data package(s)
 #'
 get_derived <- function(package.id) {
-  map <- read.csv("./webapp/map.csv", na.strings = c("", "NA"))
+  map <- read.csv("./webapp/workflow_map.csv", na.strings = c("", "NA"))
   package.id <- paste(unlist(strsplit(package.id, "\\."))[1:2], collapse = ".")
   i <- (map$environment == config.environment) & (map$source == package.id)
   scope <- unlist(strsplit(map$derived[i], "\\."))[1]
@@ -280,7 +280,7 @@ get_previous_version <- function(package.id) {
 
 
 
-#' Get name of workflow(s) from map.csv
+#' Get name of workflow(s) from workflow_map.csv
 #'
 #' @param package.id (character) Package ID with the form 
 #' "scope.identifier.revision"
@@ -293,7 +293,7 @@ get_previous_version <- function(package.id) {
 #' repository environments.
 #'
 get_workflows <- function(package.id) {
-  map <- read.csv("./webapp/map.csv", na.strings = c("", "NA"))
+  map <- read.csv("./webapp/workflow_map.csv", na.strings = c("", "NA"))
   package.id <- paste(unlist(strsplit(package.id, "\\."))[1:2], collapse = ".")
   i <- (map$environment == config.environment) & (map$source == package.id)
   if (!any(i)) {

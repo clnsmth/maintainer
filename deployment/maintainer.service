@@ -1,0 +1,13 @@
+[Unit]
+Description=uWSGI instance to serve maintainer listening services
+After=network.target
+
+[Service]
+User=pasta
+Group=www-data
+WorkingDirectory=/home/pasta/maintainer
+Environment="PATH=/home/pasta/anaconda3/envs/maintainer/bin"
+ExecStart=/home/pasta/anaconda3/envs/maintainer/bin/uwsgi --ini deployment/maintainer.ini
+
+[Install]
+WantedBy=multi-user.target

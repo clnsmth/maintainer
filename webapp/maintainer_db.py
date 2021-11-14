@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-:Mod: ecocomDP_db
+:Mod: maintainer_db
 
 :Synopsis:
 
@@ -31,7 +31,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.query import Query
 
 
-logger = daiquiri.getLogger("ecocomDP_db: " + __name__)
+logger = daiquiri.getLogger("maintainer_db: " + __name__)
 
 Base = declarative_base()
 

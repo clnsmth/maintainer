@@ -26,7 +26,7 @@ logger = daiquiri.getLogger(__name__)
 
 
 def test_send_mail():
-    subject = "Test ecocomDP_listener notification email notification..."
-    msg = "IGNORE -- Test ecocomDP_listener notification email notification."
+    subject = "Test maintainer notification email notification..."
+    msg = "IGNORE -- Test maintainer notification email notification."
     to = "mark.servilla@gmail.com"
     mailout.send_mail(subject, msg, to)

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-:Mod: test_ecocomDP_db
+:Mod: test_maintainer_db
 
 :Synopsis:
 
@@ -17,7 +17,7 @@ from pathlib import Path
 import pytest
 
 from webapp.config import Config
-from webapp.ecocomDP_db import EventDb
+from webapp.maintainer_db import EventDb
 
 
 events = [

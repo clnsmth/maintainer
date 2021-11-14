@@ -22,7 +22,7 @@ from flask import Flask, request
 from sqlalchemy.exc import IntegrityError
 
 from webapp.config import Config
-from webapp.ecocomDP_db import EventDb
+from webapp.maintainer_db import EventDb
 import webapp.mailout as mailout
 
 

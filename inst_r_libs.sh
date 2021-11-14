@@ -36,8 +36,8 @@ sudo su - -c "R -e \"install.packages('plotly', repos='http://cran.rstudio.com/'
 sudo su - -c "R -e \"install.packages('shinyWidgets', repos='http://cran.rstudio.com/')\""
 sudo su - -c "R -e \"install.packages('shinythemes', repos='http://cran.rstudio.com/')\""
 sudo su - -c "R -e \"install.packages('remotes', repos='http://cran.rstudio.com/')\""
+sudo su - -c "R -e \"install.packages('ecocomDP', repos='http://cran.rstudio.com/')\""
 sudo su - -c "R -e \"remotes::install_github('EDIorg/EDIutils')\""
 sudo su - -c "R -e \"remotes::install_github('EDIorg/taxonomyCleanr')\""
 sudo su - -c "R -e \"remotes::install_github('EDIorg/dataCleanr')\""
-sudo su - -c "R -e \"remotes::install_github('EDIorg/ecocomDP')\""
 

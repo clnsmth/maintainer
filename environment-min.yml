@@ -1,4 +1,4 @@
-name: ecocom
+name: maintainer
 channels:
   - defaults
   - conda-forge
@@ -10,4 +10,4 @@ dependencies:
   - uwsgi=2.0.19.1
   - sqlalchemy=1.3.20
   - pytest=6.1.1
-prefix: /home/servilla/anaconda3/envs/ecocom
+prefix: /home/servilla/anaconda3/envs/maintainer

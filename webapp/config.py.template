@@ -23,7 +23,7 @@ class Config(object):
     PATH = "PATH"
     TEST_PATH = "TEST_PATH"
     DB = "DB_NAME.sqlite"
-    CMD = "/usr/bin/R -e 'source(\"/home/USER/ecocomDP-maintainer/caller.R\")'"
+    CMD = "/usr/bin/R -e 'source(\"/home/USER/maintainer/caller.R\")'"
 
     # PASTA event notification servers
     PRODUCTION = "package.lternet.edu"
