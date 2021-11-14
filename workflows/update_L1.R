@@ -124,7 +124,6 @@ run_conversion_script <- function(path,
 #' @description Updates an L1 data package when it's L0 source data package has been updated. This function is a wrapper to several subroutines.
 #'
 #' @param id.L0.newest (character) Identifier of newest L0 data package.
-#' @param id.L1.newest (character) Identifier of L0's newest L1 derived to be created by this function. The L0-to-L1 conversion script of \code{id.L1.newest} will be used to create the child of \code{id.L0.newest}.
 #' @param path (character) Directory to which L1 tables, scripts, and metadata will be written.
 #' @param url (character) Publicly accessible URL to \code{path} for download by a data repository.
 #' @param user.id (character) User identifier within a specified \code{repository}. This controls editing access in some \code{repository}.
@@ -139,21 +138,24 @@ run_conversion_script <- function(path,
 #' @export
 #'
 update_L1 <- function(id.L0.newest, 
-                      id.L1.newest,
                       path, 
                       url, 
                       user.id, 
                       user.pass) {
   
-  message("----- Converting L0 (", id.L0.newest, ") to L1 (", 
-          increment_package_version(id.L1.newest), ")")
+  # Lookup the derived data package
+  derived <- get_derived(id.L0.newest)
   
+  message("----- Converting L0 (", id.L0.newest, ") to L1 (", 
+          increment_package_version(derived), ")")
   
   # Download and source conversion script -------------------------------------
   
   message("----- Downloading and sourcing L0-to-L1 conversion script")
   
-  eml_L1_newest <- EDIutils::read_metadata(id.L1.newest, tier = config.environment)
+  eml_L1_newest <- EDIutils::api_read_metadata(
+    package.id = derived, 
+    environment = config.environment)
   download_and_source_conversion_script(eml_L1_newest, path)
   
   # Create L1 -----------------------------------------------------------------
@@ -163,18 +165,22 @@ update_L1 <- function(id.L0.newest,
   r <- run_conversion_script(
     path = path,
     id.L0.newest = id.L0.newest,
-    id.L1.next = increment_package_version(id.L1.newest),
+    id.L1.next = increment_package_version(derived),
     url = url)
   
   # Upload to repository ------------------------------------------------------
   
-  message("----- Uploading L1 (", increment_package_version(id.L1.newest), 
+  message("----- Uploading L1 (", increment_package_version(derived), 
           ") to ", "EDI")
   
   r <- upload_to_repository(
     path = config.path,
-    package.id = increment_package_version(id.L1.newest),
+    package.id = increment_package_version(derived),
     user.id = config.user.id,
     user.pass = config.user.pass)
+  
+  # Clear workspace -----------------------------------------------------------
+  
+  file.remove(list.files(config.path, full.names = T))
   
 }

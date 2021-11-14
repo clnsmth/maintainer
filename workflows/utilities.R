@@ -215,7 +215,7 @@ delete_from_queue <- function(index, id) {
 #' \code{/maintainer/webapp/maintainer.sqlite} and is accessible with HTTP 
 #' request methods.
 #' 
-#' There are separate queues for "staging" and "production" tiers of EDI
+#' There are separate queues for "staging" and "production" environments of EDI
 #'
 #' @return A tibble with columns:
 #' \item{index}{(integer) Index of item in queue. This is used for removing the 
@@ -256,17 +256,21 @@ get_from_queue <- function(filter = NULL) {
 #' @return (character) \code{packageId} of derived
 #'
 get_derived <- function(id) {
+  browser()
   map <- read.csv("./webapp/map.csv", na.strings = c("", "NA"))
   id <- paste(unlist(strsplit(id, "\\."))[1:2], collapse = ".")
-  i <- (map$tier == config.environment) & (map$source == id)
+  i <- (map$environment == config.environment) & (map$source == id)
   scope <- unlist(strsplit(map$derived[i], "\\."))[1]
   identifier <- unlist(strsplit(map$derived[i], "\\."))[2]
   revision <- EDIutils::list_data_package_revisions(
     scope,
     identifier,
     filter = "newest", 
-    tier = config.environment)
+    environment = config.environment)
   res <- paste(c(scope, identifier, revision), collapse = ".")
+  if (!any(i)) {
+    return(NULL)
+  }
   return(res)
 }
 
@@ -277,47 +281,35 @@ get_derived <- function(id) {
 
 
 
-#' Get previous data package version
+#' Get identifier of previous data package version
 #'
 #' @param package.id (character) Data package identifier
 #'
-#' @return (character) Previous data package version
-#' 
-#' @details Supports repository specific methods.
-#'
-#' @examples
-#' \dontrun{
-#' #' get_previous_data_package_version("edi.100.2")
-#' }
+#' @return (character) Previous data package version. Returns NULL if 
+#' \code{package.id} is the first version.
 #' 
 get_previous_version <- function(package.id) {
-  
-  # Load Global Environment config --------------------------------------------
-  
   if (exists("config.environment", envir = .GlobalEnv)) {
     environment <- get("config.environment", envir = .GlobalEnv)
   } else {
     environment <- "production"
   }
-  
-  # Repository specific methods -----------------------------------------------
-  
   parts <- unlist(stringr::str_split(package.id, "\\."))
-  
   vers <- suppressMessages(
-    EDIutils::list_data_package_revisions(
+    EDIutils::api_list_data_package_revisions(
       scope = parts[1],
       identifier = parts[2],
-      tier = environment))
-  
+      environment = environment))
+  vers <- as.numeric(vers)
   if (length(vers) == 1) {
-    return("0")
+    return(NULL)
   }
-  
+  if (which(vers == as.numeric(parts[3])) == 1) {
+    return(NULL)
+  }
   parts[3] <- vers[which(vers == as.numeric(parts[3])) - 1]
   res <- paste(parts, collapse = ".")
   return(res)
-  
 }
 
 
@@ -327,16 +319,25 @@ get_previous_version <- function(package.id) {
 
 
 
-#' Get name of workflow from map.csv
+#' Get name of workflow(s) from map.csv
 #'
-#' @param packageId (character) Package ID with the form "scope.identifier.revision"
+#' @param package.id (character) Package ID with the form 
+#' "scope.identifier.revision"
 #'
-#' @return (character) Name of workflow
+#' @return (character) Name(s) of workflow(s). Returns NULL if no matches are 
+#' found.
+#' 
+#' @details This function references the global "config.environment" variable
+#' during workflow look up to facilitate different workflows for different
+#' repository environments.
 #'
-get_workflow <- function(id) {
+get_workflows <- function(package.id) {
   map <- read.csv("./webapp/map.csv", na.strings = c("", "NA"))
-  id <- paste(unlist(strsplit(id, "\\."))[1:2], collapse = ".")
-  i <- (map$tier == config.environment) & (map$source == id)
+  package.id <- paste(unlist(strsplit(package.id, "\\."))[1:2], collapse = ".")
+  i <- (map$environment == config.environment) & (map$source == package.id)
+  if (!any(i)) {
+    return(NULL)
+  }
   res <- map$workflow[i]
   return(res)
 }
@@ -347,30 +348,25 @@ get_workflow <- function(id) {
 
 
 
-#' Check if earlier unprocessed versions of a data package are in the ecocomDP-maintainer queue
+#' Check if earlier unprocessed versions of a data package are in the queue
 #'
-#' The presence of such items may indicate the integrity of a data package series is compromised and processing should be halted until the issue is fixed.
+#' The presence of such items may indicate the integrity of the series is 
+#' compromised and processing should be halted until the issue is addressed.
 #'
 #' @param package.id 
 #'
-#' @return (logical) TRUE if earlier versions of a data package are found
-#' @export
+#' @return (logical) TRUE if earlier versions of \code{package.id} are found,
+#' otherwise FALSE
 #'
-#' @examples
-has_unprocessed_versions <- function(package.id) {
-  # Identifier and revision of package.id
+queue_has_unprocessed_versions <- function(package.id) {
   id <- stringr::str_remove(package.id, "\\.[:digit:]*$")
   rev <- stringr::str_extract(package.id, "(?<=\\.)[:digit:]*$")
-  
-  # Identifiers and revisions of all queued items
   queue <- get_from_queue(filter = "unprocessed")$id
   if (is.null(queue)) {
     return(FALSE)
   }
   ids <- stringr::str_remove(queue, "\\.[:digit:]*$")
   revs <- stringr::str_extract(queue, "(?<=\\.)[:digit:]*$")
-  
-  # Any earlier versions that are unprocessed?
   i <- rev > revs[ids %in% id]
   if (any(i)) {
     message("Unprocessed earlier versions of ", id, " found in the queue. ",
@@ -381,7 +377,6 @@ has_unprocessed_versions <- function(package.id) {
   } else {
     return(FALSE)
   }
-  
 }
 
 
