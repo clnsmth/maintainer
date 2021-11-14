@@ -56,6 +56,7 @@ update_L1 <- function(id.L0.newest,
     user.pass = user.pass)
   
   # Clear workspace
+  message("----- Clearing workspace")
   file.remove(list.files(config.path, full.names = T))
   
 }
