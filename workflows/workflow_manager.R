@@ -75,7 +75,7 @@ workflow_manager <- function() {
   # gain additional updates while the workflow_manager() is running, and 
   # because the listener only calls upon receiving an update, these updates
   # wouldn't get processed.
-  while(!queue_is_empty()) {
+  while (!queue_is_empty()) {
     
     # Identify the update -----------------------------------------------------
     
