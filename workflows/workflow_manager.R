@@ -53,11 +53,6 @@ workflow_manager <- function() {
   sink(log, type = "message")
   message("----- Starting workflow_manager() at ", Sys.time())
   on.exit(message("----- Copying ", log_file, " to ./logs"), add = TRUE)
-  on.exit(
-    file.copy(
-      from = paste0(config.path, "/", log_file),
-      to = paste0(dirname(config.path), "/logs/", log_file)),
-    add = TRUE)
   on.exit(message("----- Exiting workflow_manager() at ", Sys.time()), 
           add = TRUE)
   on.exit(sink(type = "message"), add = TRUE)
