@@ -166,7 +166,7 @@ run_conversion_script <- function(path,
                  id.L0.newest, ")."))
   r <- create_ecocomDP(
     path = path,
-    package.id.L0 = id.L0.newest, 
-    package.id.L1 = id.L1.next, 
+    source_id = id.L0.newest, 
+    derived_id = id.L1.next, 
     url = url)
 }
