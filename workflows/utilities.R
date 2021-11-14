@@ -1,10 +1,17 @@
 #' Are there meaningful differences between EML documents?
 #' 
-#' @description For discovering changes within a dataset that may have affect downstream processes relying on consistent dataset structure and meaning. This is useful in workflow automation where reporting such changes can expedite trouble shooting and manual intervention.
+#' @description For discovering changes within a dataset that may have affect 
+#' downstream processes relying on consistent dataset structure and meaning. 
+#' This is useful in workflow automation where reporting such changes can 
+#' expedite trouble shooting and manual intervention.
 #'
-#' @param newest (xml_document, xml_node) EML of the newest version of a data package, where inputs are returned from \code{api_read_metadata()}.
-#' @param previous (xml_document, xml_node) EML of the previous version of a data package, where inputs are returned from \code{api_read_metadata()}.
-#' @param return.all (logical) Return all differences? Default is FALSE, i.e. only return meaningful differences. Meaningful differences do not include elements expected to change between versions (e.g. number of rows, file size, temporal coverage).
+#' @param newest (xml_document, xml_node) EML of the newest version of a data 
+#' package, where inputs are returned from \code{api_read_metadata()}.
+#' @param previous (xml_document, xml_node) EML of the previous version of a 
+#' data package, where inputs are returned from \code{api_read_metadata()}.
+#' @param return.all (logical) Return all differences? Default is FALSE, i.e. 
+#' only return meaningful differences. Meaningful differences do not include 
+#' elements expected to change between versions (e.g. number of rows, file size, temporal coverage).
 #'
 #' @return (character) XPaths of nodes that differ between versions
 #' 
@@ -34,21 +41,6 @@
 #'   \item{.//otherEntity/physical/dataFormat/textFormat/simpleDelimited/fieldDelimiter (TRUE)}
 #'   \item{.//otherEntity/attributeList (TRUE)}
 #' }
-#' 
-#' @export
-#'
-#' @examples
-#' 
-#' # Return only "meaningful" differences (default behavior)
-#' compare_eml(
-#'   newest = api_read_metadata("knb-lter-hfr.118.32"),
-#'   previous = api_read_metadata("knb-lter-hfr.118.31"))
-#'   
-#' # Return all differences
-#' compare_eml(
-#'   newest = api_read_metadata("knb-lter-hfr.118.32"),
-#'   previous = api_read_metadata("knb-lter-hfr.118.31"),
-#'   return.all = TRUE)
 #' 
 compare_eml <- function(newest, 
                         previous,
@@ -111,7 +103,8 @@ compare_eml <- function(newest,
 #' @param previous (xml_document, xml_node) Previous version of an EML document
 #' @param xpath (character) xpath of node to compare
 #'
-#' @return (character) xpath of node if \code{newest} and \code{previous} differ, otherwise NULL
+#' @return (character) xpath of node if \code{newest} and \code{previous} 
+#' differ, otherwise NULL
 #' 
 compare_node_as_string <- function(newest, previous, xpath) {
   
@@ -145,49 +138,19 @@ compare_node_as_string <- function(newest, previous, xpath) {
 
 
 
-#' Convert missing value codes to NA
-#'
-#' @param v Vector of values
-#' @param code (character) Missing value code
-#' @param type (character) Type (class) \code{v} should be. Supported types are: "character", "numeric", "datetime"
-#'
-#' @return Vector of values with \code{code} replaced by NA in the class of \code{type}
-#'
-convert_missing_value <- function(v, code, type) {
-  if (type == "character") {
-    res <- stringr::str_replace_all(as.character(v), paste(code, collapse = "|"), NA_character_)
-  } else if (type == "numeric") {
-    res <- stringr::str_replace_all(as.character(v), paste(code, collapse = "|"), NA_character_)
-    res <- as.numeric(res)
-  } else if (type == "datetime") {
-    # TODO: Parse datetime according to date time format specifier
-    res <- v
-  }
-  return(res)
-}
-
-
-
-
-
-
-
-
-#' Delete item from ecocomDP-maintainer queue
+#' Delete item from the maintainer queue
 #'
 #' @param index (integer) Index of item to remove
-#' @param id (character) Data package identifier, corresponding with \code{index}, to remove
+#' @param id (character) Data package identifier, corresponding with 
+#' \code{index}, to remove
 #'
 #' @return (logical) Indicates whether the item was successfully removed
 #' 
 delete_from_queue <- function(index, id) {
-  
   # Only the index number is needed to delete an item from the "production" 
   # and "staging" queues (it's the same queue).
-  
   r <- httr::DELETE(
     paste0("https://regan.edirepository.org/ecocom-listener/", index))
-  
   if (httr::status_code(r) == 200) {
     message(id, " has been deleted from the queue")
     return(TRUE)
@@ -196,7 +159,37 @@ delete_from_queue <- function(index, id) {
             "is required.")
     return(FALSE)
   }
-  
+}
+
+
+
+
+
+
+
+#' Get name of derived data package from map.csv
+#'
+#' @param package.id (character) Package ID with the form 
+#' "scope.identifier.revision"
+#'
+#' @return (character) \code{package.id} of derived data package(s)
+#'
+get_derived <- function(package.id) {
+  map <- read.csv("./webapp/map.csv", na.strings = c("", "NA"))
+  package.id <- paste(unlist(strsplit(package.id, "\\."))[1:2], collapse = ".")
+  i <- (map$environment == config.environment) & (map$source == package.id)
+  scope <- unlist(strsplit(map$derived[i], "\\."))[1]
+  identifier <- unlist(strsplit(map$derived[i], "\\."))[2]
+  revision <- EDIutils::api_list_data_package_revisions(
+    scope = scope,
+    identifier = identifier,
+    filter = "newest", 
+    environment = config.environment)
+  res <- paste(c(scope, identifier, revision), collapse = ".")
+  if (!any(i)) {
+    return(NULL)
+  }
+  return(res)
 }
 
 
@@ -240,38 +233,6 @@ get_from_queue <- function(filter = NULL) {
       show_col_types = FALSE, )
     return(res)
   }
-}
-
-
-
-
-
-
-
-
-#' Get name of derived from map.csv
-#'
-#' @param packageId (character) Package ID with the form "scope.identifier.revision"
-#'
-#' @return (character) \code{packageId} of derived
-#'
-get_derived <- function(id) {
-  browser()
-  map <- read.csv("./webapp/map.csv", na.strings = c("", "NA"))
-  id <- paste(unlist(strsplit(id, "\\."))[1:2], collapse = ".")
-  i <- (map$environment == config.environment) & (map$source == id)
-  scope <- unlist(strsplit(map$derived[i], "\\."))[1]
-  identifier <- unlist(strsplit(map$derived[i], "\\."))[2]
-  revision <- EDIutils::list_data_package_revisions(
-    scope,
-    identifier,
-    filter = "newest", 
-    environment = config.environment)
-  res <- paste(c(scope, identifier, revision), collapse = ".")
-  if (!any(i)) {
-    return(NULL)
-  }
-  return(res)
 }
 
 
@@ -348,6 +309,26 @@ get_workflows <- function(package.id) {
 
 
 
+
+#' Increment data package version number
+#'
+#' @param package.id (character) Data package identifier
+#'
+#' @return (character) Package identifier with version number incremented by 1.
+#' 
+increment_package_version <- function(package.id) {
+  parts <- unlist(stringr::str_split(package.id, "\\."))
+  parts[3] <- as.character(as.numeric(parts[3]) + 1)
+  parts <- paste(parts, collapse = ".")
+  return(parts)
+}
+
+
+
+
+
+
+
 #' Check if earlier unprocessed versions of a data package are in the queue
 #'
 #' The presence of such items may indicate the integrity of the series is 
@@ -386,49 +367,6 @@ queue_has_unprocessed_versions <- function(package.id) {
 
 
 
-#' Increment data package version number
-#'
-#' @param package.id (character) Data package identifier
-#'
-#' @return (character) Package identifier with version number incremented by 1.
-#' 
-#' @details Supports repository specific methods.
-#'
-#' @examples
-#' increment_package_version("edi.100.1")
-#' 
-increment_package_version <- function(package.id) {
-  parts <- unlist(stringr::str_split(package.id, "\\."))
-  parts[3] <- as.character(as.numeric(parts[3]) + 1)
-  parts <- paste(parts, collapse = ".")
-  return(parts)
-}
-
-
-
-
-
-
-
-
-#' Is empty nodeset?
-#'
-#' @param nodeset (xml_nodeset) Any nodeset returned by the xml2 library
-#' 
-#' @return (logical) TRUE if nodeset length = 0
-#' 
-is_empty_nodeset <- function(nodeset) {
-  res <- length(nodeset) == 0
-  return(res)
-}
-
-
-
-
-
-
-
-
 #' Check if the processing queue is empty
 #'
 #' @return (logical) TRUE if empty, otherwise FALSE
@@ -445,28 +383,25 @@ queue_is_empty <- function() {
 
 
 
-#' Send email
+#' Send email to a Gmail account
 #'
 #' @param from (character) Email address
 #' @param to (character) Email address
-#' @param attachment (character) Attachment file name with full path and file extension
+#' @param attachment (character) Attachment file name with full path and file 
+#' extension
 #' @param smtp.relay (character) SMTP relay
 #' @param relay.user (character) Relay user
 #' @param relay.user.pass (character) Relay user password
 #' @param subject (character) Subject line
 #' @param msg (character) Message
-#'
-#' @details Works for Linux. May not work for other OS.
 #' 
-#' @export
+#' @note Currently only works for Gmail recipients.
 #' 
 send_email <- function(from, to, attachment, smtp.relay, relay.user, 
                        relay.user.pass, subject, msg) {
-  
   cmd <- paste("/usr/bin/sendemail -f", from, "-t", to, "-a", attachment, "-s", 
                smtp.relay, "-xu", relay.user, "-xp", relay.user.pass, "-u", 
                subject, "-m", msg)
-  
   system(cmd)
 }
 
@@ -477,35 +412,32 @@ send_email <- function(from, to, attachment, smtp.relay, relay.user,
 
 
 
-#' Upload data package to a repository
+#' Update data package in EDI
 #'
 #' @description A wrapper function to repository specific upload methods.
 #'
-#' @param path (character) Publicly accessible server directory from which L1 tables, scripts, and metadata can be downloaded
+#' @param path (character) Publicly accessible server directory from which 
+#' L1 tables, scripts, and metadata can be downloaded
 #' @param package.id (character) Identifier of data package to be uploaded
-#' @param user.id (character) User identifier within a specified \code{repository}. This controls editing access in some \code{repository}.
-#' @param user.pass (character) Password associated with \code{user.id} for repository upload.
-#'
-#' @return (character) Evaluation/upload summary
-#' @export
-#'
-#' @examples
+#' @param user.id (character) User identifier within the EDI data repository
+#' @param user.pass (character) \code{user.id} password
+#' 
+#' @return (message) Evaluation/upload summary
+#' 
+#' @note Requires an earlier version of the data package to be published.
+#' Use the manual upload process of there isn't an earlier version.
 #' 
 upload_to_repository <- function(path,
                                  package.id,
                                  user.id,
                                  user.pass) {
-  
-  # Load Global Environment config --------------------------------------------
-  
+  # Load Global Environment config
   if (exists("config.environment", envir = .GlobalEnv)) {
     environment <- get("config.environment", envir = .GlobalEnv)
   } else {
     environment <- "production"
   }
-  
-  # Upload --------------------------------------------------------------------
-  
+  # Upload
   EDIutils::api_update_data_package(
     path = path, 
     package.id = package.id, 
@@ -513,7 +445,4 @@ upload_to_repository <- function(path,
     user.id = user.id, 
     user.pass = user.pass,
     affiliation = repository)
-  
-  # TODO Add a create method here for new data packages
-  
 }

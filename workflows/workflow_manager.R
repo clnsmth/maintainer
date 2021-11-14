@@ -58,7 +58,8 @@ workflow_manager <- function() {
       from = paste0(config.path, "/", log_file),
       to = paste0(dirname(config.path), "/logs/", log_file)),
     add = TRUE)
-  on.exit(message("----- Exiting workflow_manager() at ", Sys.time()), add = TRUE)
+  on.exit(message("----- Exiting workflow_manager() at ", Sys.time()), 
+          add = TRUE)
   on.exit(sink(type = "message"), add = TRUE)
   on.exit(close(log), add = TRUE)
   
@@ -132,7 +133,6 @@ workflow_manager <- function() {
     # Run workflow(s) ---------------------------------------------------------
     
     for (workflow in workflows) {
-      
       message("----- Running workflow ", workflow)
       
       if (workflow == "update_L1") {
@@ -155,11 +155,10 @@ workflow_manager <- function() {
           user.pass = config.user.pass)
         
       }
-      
     }
     
-    # Delete the update from the queue ----------------------------------------
-    message("----- Deleting from queue")
+    # Remove the update from the queue
+    message("----- Deleting ", new_pkg$id, "from queue")
     r <- delete_from_queue(new_pkg$index, new_pkg$id)
 
   }

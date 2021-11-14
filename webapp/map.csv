@@ -1,6 +1,6 @@
 environment,source,derived,workflow
-staging,edi.95,edi.96,update_L1
-staging,edi.95,NA,stub
-staging,edi.96,edi.97,update_L2_dwca
+staging,edi.526,edi.527,update_L1
+staging,edi.526,NA,stub
+staging,edi.527,edi.528,update_L2_dwca
 production,knb-lter-hfr.118,edi.193,update_L1
 production,edi.193,edi.834,update_L2_dwca
