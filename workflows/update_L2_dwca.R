@@ -53,6 +53,8 @@ update_L2_dwca <- function(id.L1.newest,
   
   # Clear workspace
   message("----- Clearing workspace")
-  file.remove(list.files(config.path, full.names = T))
+  files <- list.files(config.path, full.names = TRUE)
+  i <- grep("^(?!README).*$", list.files(config.path), perl = TRUE)
+  file.remove(files[i])
   
 }

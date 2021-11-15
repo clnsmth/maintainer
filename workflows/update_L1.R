@@ -92,8 +92,10 @@ update_L1 <- function(id.L0.newest,
   
   # Clear workspace
   message("----- Clearing workspace")
-  file.remove(list.files(config.path, full.names = T))
-  
+  files <- list.files(config.path, full.names = TRUE)
+  i <- grep("^(?!README).*$", list.files(config.path), perl = TRUE)
+  file.remove(files[i])
+
 }
 
 
