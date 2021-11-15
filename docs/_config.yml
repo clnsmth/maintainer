@@ -1,0 +1,13 @@
+# Site settings
+title: Our Project Title
+author:
+  name: Me
+  email: my-email@domain.com
+description: "Text for the right side of the footer"
+
+# Build settings
+remote_theme: jekyll/minima
+
+header_pages:
+  - results.md
+  - about.md
