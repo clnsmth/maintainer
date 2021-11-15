@@ -150,7 +150,7 @@ delete_from_queue <- function(index, id) {
   # Only the index number is needed to delete an item from the "production" 
   # and "staging" queues (it's the same queue).
   r <- httr::DELETE(
-    paste0("https://regan.edirepository.org/ecocom-listener/", index))
+    paste0("https://regan.edirepository.org/maintainer/", index))
   if (httr::status_code(r) == 200) {
     message(id, " has been deleted from the queue")
     return(TRUE)
@@ -218,9 +218,9 @@ get_derived <- function(package.id) {
 #' 
 get_from_queue <- function(filter = NULL) {
   if (config.environment == "staging") {
-    url <- "https://regan.edirepository.org/ecocom-listener/package-s.lternet.edu"
+    url <- "https://regan.edirepository.org/maintainer/package-s.lternet.edu"
   } else if (config.environment == "production") {
-    url <- "https://regan.edirepository.org/ecocom-listener/package.lternet.edu"
+    url <- "https://regan.edirepository.org/maintainer/package.lternet.edu"
   }
   if (!is.null(filter)) {
     url <- paste0(url, "?filter=", filter)

@@ -59,7 +59,7 @@ def is_valid_package_id(package_id: str) -> bool:
     return len(package_id.split(".")) == 3
 
 
-@app.route("/ecocom-listener", methods=["POST"])
+@app.route("/maintainer", methods=["POST"])
 def insert_event():
     remote = request.remote_addr
     logger.warn(f"Inbound POST from: {remote}")
@@ -78,7 +78,7 @@ def insert_event():
                 msg = f"EventDB integrity error: {package_id} event already recorded"
                 mailout.send_mail(msg, msg, Config.MAIL_TO)
                 return msg, http.HTTPStatus.BAD_REQUEST
-            msg = f"EcocomDP event recorded: {package_id} on {host}"
+            msg = f"maintainer event recorded: {package_id} on {host}"
             logger.warn(msg)
             mailout.send_mail(msg, msg, Config.MAIL_TO)
             cmd = Config.CMD
@@ -91,7 +91,7 @@ def insert_event():
             return msg, http.HTTPStatus.BAD_REQUEST
 
 
-@app.route("/ecocom-listener/<env>", methods=["GET"])
+@app.route("/maintainer/<env>", methods=["GET"])
 def get_next_event(env: str = None):
     f = request.args.get("filter")
     remote = request.remote_addr
@@ -130,7 +130,7 @@ def get_next_event(env: str = None):
         return msg, http.HTTPStatus.BAD_REQUEST
 
 
-@app.route("/ecocom-listener/<index>", methods=["DELETE"])
+@app.route("/maintainer/<index>", methods=["DELETE"])
 def set_processed(index: str = None):
     remote = request.remote_addr
     logger.warn(f"Inbound DELETE from: {remote}")
