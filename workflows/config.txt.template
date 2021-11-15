@@ -1,10 +1,10 @@
-# Global variables for for workflows
+# Global variables for workflows
 
 config.repository <- "EDI" # Repository system. Options: "EDI"
 config.environment <- "staging" # Repository environment. config.repository can have multiple environments. Options: "staging", "production"
 config.path <- "./temp" # Path to directory where outputs are written
-config.www <- "https://some/url" # URL to config.path through which config.repository can download files 
-config.user.id <- "me" # User ID for publishing to config.repository
-config.user.pass <- "mypass" # User password for publishing to config.repository
-config.email.address <- "me@gmail.com" # Gmail address for notifications (only Gmail is currently supported)
-config.email.pass <- "mypass@gmail.com" # Password for config.email.address
+config.www <- "./temp" # URL to config.path through which config.repository can download files 
+config.user.id <- "" # User ID for publishing to config.repository
+config.user.pass <- "" # User password for publishing to config.repository
+config.email.address <- "" # Gmail address for notifications (only Gmail is currently supported)
+config.email.pass <- "" # Password for config.email.address
