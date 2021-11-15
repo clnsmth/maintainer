@@ -28,8 +28,8 @@ update_L1 <- function(id.L0.newest,
   
   # Look up identifier of derived data package
   derived <- get_derived(id.L0.newest)
-  message("----- Converting L0 (", id.L0.newest, ") to L1 (", 
-          increment_package_version(derived), ")")
+  derived_next <- increment_package_version(derived)
+  message("----- Converting L0 (", id.L0.newest, ") to L1 (", derived_next, ")")
   
   # Download and source conversion script from the previous L1 data package
   message("----- Downloading and sourcing L0-to-L1 conversion script")
@@ -43,15 +43,49 @@ update_L1 <- function(id.L0.newest,
   r <- run_conversion_script(
     path = path,
     id.L0.newest = id.L0.newest,
-    id.L1.next = increment_package_version(derived),
+    id.L1.next = derived_next,
     url = url)
   
+  # Create plots for website
+  dataset <- ecocomDP::read_data(from = path)
+  flat = ecocomDP::flatten_data(dataset)
+  plots <- list(
+    sites = ecocomDP::plot_sites(flat),
+    sampling = ecocomDP::plot_sample_space_time(flat),
+    accumulation = ecocomDP::plot_taxa_accum_time(flat),
+    diversity = ecocomDP::plot_taxa_diversity(flat, time_window_size = "month"),
+    shared = ecocomDP::plot_taxa_shared_sites(flat),
+    occurrence = ecocomDP::plot_taxa_occur_freq(flat))
+  
+  # Iterate through plots
+  ggplot2::ggsave(
+    filename = paste0(path, "/sites.png"),
+    plot = p,
+    width = 5,
+    height = 3,
+    units = "in",
+    bg = "white")
+  
+  
+  
+  p <- ecocomDP::plot_taxa_shared_sites(dataset, id = derived_next)
+  ggplot2::ggsave(
+    filename = paste0(path, "/richness.png"),
+    plot = p,
+    width = 5,
+    height = 3,
+    units = "in",
+    bg = "white")
+  
+  
+  
+  
   # Upload to EDI
-  message("----- Uploading L1 (", increment_package_version(derived), 
+  message("----- Uploading L1 (", derived_next, 
           ") to ", "EDI")
   r <- upload_to_repository(
     path = config.path,
-    package.id = increment_package_version(derived),
+    package.id = derived_next,
     user.id = user.id,
     user.pass = user.pass)
   
