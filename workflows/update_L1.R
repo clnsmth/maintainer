@@ -46,9 +46,9 @@ update_L1 <- function(id.L0.newest,
     id.L1.next = derived_next,
     url = url)
   
-  # Create plots for website
-  dataset <- ecocomDP::read_data(from = path)
-  flat = ecocomDP::flatten_data(dataset)
+  # Create plots for the project website
+  message("----- Updating plots")
+  flat = ecocomDP::flatten_data(ecocomDP::read_data(from = path))
   plots <- list(
     sites = ecocomDP::plot_sites(flat),
     sampling = ecocomDP::plot_sample_space_time(flat),
@@ -57,28 +57,29 @@ update_L1 <- function(id.L0.newest,
     shared = ecocomDP::plot_taxa_shared_sites(flat),
     occurrence = ecocomDP::plot_taxa_occur_freq(flat))
   
-  # Iterate through plots
-  ggplot2::ggsave(
-    filename = paste0(path, "/sites.png"),
-    plot = p,
-    width = 5,
-    height = 3,
-    units = "in",
-    bg = "white")
+  # Save plots to the website ./docs/assets directory
+  r <- lapply(
+    seq_along(plots),
+    function(i) {
+      ggplot2::ggsave(
+        filename = paste0("./docs/assets/", names(plots)[i], ".png"),
+        plot = plots[[i]],
+        width = 5,
+        height = 3,
+        units = "in",
+        bg = "white")
+    })
   
-  
-  
-  p <- ecocomDP::plot_taxa_shared_sites(dataset, id = derived_next)
-  ggplot2::ggsave(
-    filename = paste0(path, "/richness.png"),
-    plot = p,
-    width = 5,
-    height = 3,
-    units = "in",
-    bg = "white")
-  
-  
-  
+  # Commit plots and push to GitHub
+  repo <- git2r::repository()
+  changes <- paste0("./docs/assets/", names(plots), ".png")
+  git2r::add(path = changes)
+  git2r::commit(message = "Update plots")
+  cred <- git2r::cred_user_pass(
+    username = config.github.user, 
+    password = config.github.pass)
+  git2r::push(repo, "origin", refspec = "refs/heads/main", credentials = cred)
+
   
   # Upload to EDI
   message("----- Uploading L1 (", derived_next, 
