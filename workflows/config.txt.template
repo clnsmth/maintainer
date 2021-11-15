@@ -12,6 +12,8 @@ config.email.pass <- "" # Password for config.email.address
 
 # Libraries used in workflows
 library(EDIutils)
+library(EML)
 library(git2r)
 library(httr)
 library(readr)
+library(xml2)
