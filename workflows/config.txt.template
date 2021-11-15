@@ -1,5 +1,4 @@
-# Global variables for workflows
-
+# Global variables for workflow configuration
 config.repository <- "EDI" # Repository system. Options: "EDI"
 config.environment <- "staging" # Repository environment. config.repository can have multiple environments. Options: "staging", "production"
 config.path <- "./temp" # Path to directory where outputs are written
@@ -10,3 +9,9 @@ config.github.user <- "" # GitHub user name
 config.github.pass <- "" # GitHub password
 config.email.address <- "" # Gmail address for notifications (only Gmail is currently supported)
 config.email.pass <- "" # Password for config.email.address
+
+# Libraries used in workflows
+library(EDIutils)
+library(git2r)
+library(httr)
+library(readr)
