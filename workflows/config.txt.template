@@ -6,5 +6,7 @@ config.path <- "./temp" # Path to directory where outputs are written
 config.www <- "./temp" # URL to config.path through which config.repository can download files 
 config.user.id <- "" # User ID for publishing to config.repository
 config.user.pass <- "" # User password for publishing to config.repository
+config.github.user <- "" # GitHub user name
+config.github.pass <- "" # GitHub password
 config.email.address <- "" # Gmail address for notifications (only Gmail is currently supported)
 config.email.pass <- "" # Password for config.email.address
