@@ -293,7 +293,7 @@ get_previous_version <- function(package.id) {
 #' repository environments.
 #'
 get_workflows <- function(package.id) {
-  map <- read.csv("./webapp/workflow_map.csv", na.strings = c("", "NA"))
+  map <- read.csv("/home/pasta/maintainer/webapp/workflow_map.csv", na.strings = c("", "NA"))
   package.id <- paste(unlist(strsplit(package.id, "\\."))[1:2], collapse = ".")
   i <- (map$environment == config.environment) & (map$source == package.id)
   if (!any(i)) {
