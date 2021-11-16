@@ -61,7 +61,7 @@ update_L1 <- function(id.L0.newest,
     seq_along(plots),
     function(i) {
       ggplot2::ggsave(
-        filename = paste0("./docs/assets/", names(plots)[i], ".png"),
+        filename = paste0("/home/pasta/maintainer/docs/assets/", names(plots)[i], ".png"),
         plot = plots[[i]],
         width = 5,
         height = 3,
@@ -71,7 +71,7 @@ update_L1 <- function(id.L0.newest,
   
   # Commit plots and push to GitHub
   repo <- git2r::repository()
-  changes <- paste0("./docs/assets/", names(plots), ".png")
+  changes <- paste0("/home/pasta/maintainer/docs/assets/", names(plots), ".png")
   git2r::add(path = changes)
   try(git2r::commit(message = "Update plots"), silent = TRUE)
   cred <- git2r::cred_user_pass(
