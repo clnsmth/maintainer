@@ -444,5 +444,5 @@ upload_to_repository <- function(path,
     environment = environment, 
     user.id = user.id, 
     user.pass = user.pass,
-    affiliation = repository)
+    affiliation = config.repository)
 }
