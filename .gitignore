@@ -107,7 +107,6 @@ dmypy.json
 .pre-commit-config.yaml
 # Project
 config.py
-config.R
 .idea
 .Rproj.user
 maintainer.Rproj
