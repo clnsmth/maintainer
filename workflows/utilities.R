@@ -147,6 +147,9 @@ compare_node_as_string <- function(newest, previous, xpath) {
 #' @return (logical) Indicates whether the item was successfully removed
 #' 
 delete_from_queue <- function(index, id) {
+  # TODO Only the index is required for the DELETE request. The id is purely for 
+  # messaging. Consider removing the id param.
+  
   # Only the index number is needed to delete an item from the "production" 
   # and "staging" queues (it's the same queue).
   r <- httr::DELETE(
