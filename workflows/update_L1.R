@@ -50,7 +50,6 @@ update_L1 <- function(id.L0.newest,
   message("----- Updating plots")
   flat = ecocomDP::flatten_data(ecocomDP::read_data(from = path))
   plots <- list(
-    sites = ecocomDP::plot_sites(flat),
     sampling = ecocomDP::plot_sample_space_time(flat),
     accumulation = ecocomDP::plot_taxa_accum_time(flat),
     diversity = ecocomDP::plot_taxa_diversity(flat, time_window_size = "month"),
