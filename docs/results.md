@@ -2,10 +2,7 @@
 layout: page
 title: Results
 ---
-Here are some preliminary results ...
-
-### Dates and times samples were collected or observations were made
-![sampling](/maintainer/assets/sampling.png)
+Some preliminary results ...
 
 ### Taxa accumulation through time
 ![accumulation](/maintainer/assets/accumulation.png)
@@ -18,3 +15,6 @@ Here are some preliminary results ...
 
 ### Number of unique taxa shared across sites
 ![shared](/maintainer/assets/shared.png)
+
+### Dates and times samples were collected or observations were made
+![sampling](/maintainer/assets/sampling.png)
