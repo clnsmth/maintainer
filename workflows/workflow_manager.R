@@ -135,7 +135,7 @@ workflow_manager <- function() {
         update_L1(
           id.L0.newest = new_pkg$id,
           path = config.path, 
-          url = config.path, 
+          url = config.www, 
           user.id = config.user.id,
           user.pass = config.user.pass)
         
