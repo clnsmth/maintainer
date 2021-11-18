@@ -343,7 +343,9 @@ increment_package_version <- function(package.id) {
 #' @return (message) Message with the form:
 #' \code{----- MMM DD HH:MM:SS |maintainer|:}
 #' 
-msg <- function(x) {
+msg <- function(...) {
+  x <- list(...)
+  x <- paste(unlist(x), collapse = "")
   x <- paste0("\n----- ", format(Sys.time(), "%b %d %H:%M:%S"), 
               " [maintainer]: ", x, "\n")
   message(x)
