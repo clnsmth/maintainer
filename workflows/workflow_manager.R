@@ -51,10 +51,9 @@ workflow_manager <- function() {
   log_file <- paste0("log_", format(Sys.time(), "%Y%m%d_%H%M%S"), ".txt")
   log <- file(paste0("./logs/", log_file), open = "wt")
   sink(log, type = "message")
-  message("----- Starting workflow_manager() at ", Sys.time())
-  on.exit(message("----- Copying ", log_file, " to ./logs"), add = TRUE)
-  on.exit(message("----- Exiting workflow_manager() at ", Sys.time()), 
-          add = TRUE)
+  msg("Starting")
+  on.exit(msg("Copying ", log_file, " to ./logs"), add = TRUE)
+  on.exit(msg("Exiting"), add = TRUE)
   on.exit(sink(type = "message"), add = TRUE)
   on.exit(close(log), add = TRUE)
   
@@ -80,18 +79,18 @@ workflow_manager <- function() {
     # Identify the update -----------------------------------------------------
     
     # Query the queue for an updated data package and stop if there is none
-    message("----- Checking the queue for updates")
+    msg("Checking for updates")
     new_pkg <- get_from_queue()
     if (is.null(new_pkg)) {
-      message("No update found")
+      msg("No update found")
       return(NULL)
     }
-    message("----- Processing ", new_pkg$id)
+    msg("Found an update (", new_pkg$id, ")")
     
     # Check series integrity --------------------------------------------------
     
     # Stop if an earlier version hasn't been processed
-    message("----- Checking series integrity")
+    msg("Checking series integrity")
     if (queue_has_unprocessed_versions(new_pkg$id)) {
       return(NULL)
     }
@@ -102,8 +101,7 @@ workflow_manager <- function() {
     # previous versions
     previous_version <- get_previous_version(new_pkg$id)
     if (!is.null(previous_version)) {
-      message("----- Comparing EML (Looking for meaningful changes between ",
-              "newest and previous versions)")
+      msg("Comparing versions")
       eml_newest <- EDIutils::api_read_metadata(
         package.id = new_pkg$id, 
         environment = config.environment)
@@ -118,17 +116,17 @@ workflow_manager <- function() {
     # Identify workflow -------------------------------------------------------
     
     # Get name of the workflow to run from ./maintainer/webapp/workflow_map.csv
-    message("----- Identifying workflow(s)")
     workflows <- get_workflows(new_pkg$id)
     if (is.null(workflows)) {
-      message("Could not find a workflow for ", new_pkg$id)
+      msg("Could not find workflow for ", new_pkg$id)
       return(NULL)
     }
+    msg("Found workflow for ", new_pkg$id)
     
     # Run workflow(s) ---------------------------------------------------------
     
     for (workflow in workflows) {
-      message("----- Running workflow ", workflow)
+      msg(paste0("Running workflow: ", workflow))
       
       if (workflow == "update_L1") {
         
@@ -153,7 +151,7 @@ workflow_manager <- function() {
     }
     
     # Remove the update from the queue
-    message("----- Deleting ", new_pkg$id, "from queue")
+    msg("Deleting ", new_pkg$id, " from the queue")
     r <- delete_from_queue(new_pkg$index, new_pkg$id)
 
   }

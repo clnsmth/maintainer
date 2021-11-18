@@ -33,7 +33,7 @@ update_L2_dwca <- function(id.L1.newest,
   }
   
   # Create L2
-  message("----- Converting L1 (", id.L1.newest, ") to L2 DwC-A ",
+  message("Converting L1 (", id.L1.newest, ") to L2 DwC-A ",
           stringr::str_to_title(core.name), " Core (", derived, ")")
   ecocomDP::convert_to_dwca(
     path = path, 
@@ -44,7 +44,7 @@ update_L2_dwca <- function(id.L1.newest,
     user_domain = "EDI")
   
   # Upload to repository
-  message("----- Uploading L2 (", derived, ") to EDI")
+  message("Uploading L2 (", derived, ") to EDI")
   r <- upload_to_repository(
     path = config.path,
     package.id = derived,
@@ -52,7 +52,7 @@ update_L2_dwca <- function(id.L1.newest,
     user.pass = user.pass)
   
   # Clear workspace
-  message("----- Clearing workspace")
+  message("Clearing workspace")
   files <- list.files(config.path, full.names = TRUE)
   i <- grep("^(?!README).*$", list.files(config.path), perl = TRUE)
   file.remove(files[i])

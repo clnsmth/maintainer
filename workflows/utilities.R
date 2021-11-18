@@ -155,7 +155,6 @@ delete_from_queue <- function(index, id) {
   r <- httr::DELETE(
     paste0("https://regan.edirepository.org/maintainer/", index))
   if (httr::status_code(r) == 200) {
-    message(id, " has been deleted from the queue")
     return(TRUE)
   } else {
     message(id, " could not be deleted from the queue. Devine intervention ",

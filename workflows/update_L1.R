@@ -29,17 +29,17 @@ update_L1 <- function(id.L0.newest,
   # Look up identifier of derived data package
   derived <- get_derived(id.L0.newest)
   derived_next <- increment_package_version(derived)
-  message("----- Converting L0 (", id.L0.newest, ") to L1 (", derived_next, ")")
+  message("Converting L0 (", id.L0.newest, ") to L1 (", derived_next, ")")
   
   # Download and source conversion script from the previous L1 data package
-  message("----- Downloading and sourcing L0-to-L1 conversion script")
+  message("Downloading and sourcing L0-to-L1 conversion script")
   eml_L1_newest <- EDIutils::api_read_metadata(
     package.id = derived, 
     environment = config.environment)
   download_and_source_conversion_script(eml_L1_newest, path)
   
   # Create L1
-  message("----- Running L0-to-L1 conversion script")
+  message("Running L0-to-L1 conversion script")
   r <- run_conversion_script(
     path = path,
     id.L0.newest = id.L0.newest,
@@ -47,7 +47,7 @@ update_L1 <- function(id.L0.newest,
     url = url)
   
   # Create plots for the project website
-  message("----- Updating plots")
+  message("Updating plots")
   flat = ecocomDP::flatten_data(ecocomDP::read_data(from = path))
   plots <- list(
     sampling = ecocomDP::plot_sample_space_time(flat),
@@ -81,7 +81,7 @@ update_L1 <- function(id.L0.newest,
 
   
   # Upload to EDI
-  message("----- Uploading L1 (", derived_next, 
+  message("Uploading L1 (", derived_next, 
           ") to ", "EDI")
   r <- upload_to_repository(
     path = config.path,
@@ -90,7 +90,7 @@ update_L1 <- function(id.L0.newest,
     user.pass = user.pass)
   
   # Clear workspace
-  message("----- Clearing workspace")
+  message("Clearing workspace")
   files <- list.files(config.path, full.names = TRUE)
   i <- grep("^(?!README).*$", list.files(config.path), perl = TRUE)
   file.remove(files[i])
@@ -117,6 +117,7 @@ update_L1 <- function(id.L0.newest,
 #' R libraries used by the script which are installed if not already.
 #'
 download_and_source_conversion_script <- function(eml, path) {
+  message("Downloading and sourcing the conversion script")
   other_entities <- xml2::xml_text(
     xml2::xml_find_all(eml, ".//otherEntity/physical/objectName"))
   script <- stringr::str_detect(
@@ -162,7 +163,7 @@ run_conversion_script <- function(path,
   }
   # Run script
   message(paste0("Creating new L1 (", id.L1.next, ") from newest L0 (", 
-                 id.L0.newest, ")."))
+                 id.L0.newest, ")"))
   r <- create_ecocomDP(
     path = path,
     source_id = id.L0.newest, 
