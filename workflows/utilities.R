@@ -333,14 +333,17 @@ increment_package_version <- function(package.id) {
 
 
 
-#' Construct message for log file
+#' Log workflow manager message to file
 #'
-#' @param msg (character) Message that will be added to the logfile.
+#' @param x (character) Message
 #'  
-#' @details Message is prepended with "----- " and the system time
+#' @return (message) Message with the form:
+#' \code{----- MMM DD HH:MM:SS \[workflow manger\]:}
 #' 
-msg <- function(msg) {
-  message("----- ", Sys.time(), ": ", msg)
+msg <- function(x) {
+  x <- paste0("\n----- ", format(Sys.time(), "%b %d %H:%M:%S"), 
+              " [workflow manager]: ", x, "\n")
+  message(x)
 }
 
 
