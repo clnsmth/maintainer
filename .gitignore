@@ -113,3 +113,4 @@ config.py
 maintainer.Rproj
 *config.txt
 /logs/
+lock.txt
