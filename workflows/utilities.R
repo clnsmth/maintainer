@@ -333,12 +333,16 @@ increment_package_version <- function(package.id) {
 
 
 
-#' Log workflow manager message to file
+#' Add a high-level workflow message to the log file
+#' 
+#' @description Because all messages/warnings/errors are logged to file, 
+#' subsequent reading can be a challenge. This function creates a recognizable
+#' message format to delineate high level processes from lower level ones.
 #'
 #' @param x (character) Message
 #'  
 #' @return (message) Message with the form:
-#' \code{----- MMM DD HH:MM:SS \[workflow manger\]:}
+#' \code{----- MMM DD HH:MM:SS |maintainer|:}
 #' 
 msg <- function(x) {
   x <- paste0("\n----- ", format(Sys.time(), "%b %d %H:%M:%S"), 
