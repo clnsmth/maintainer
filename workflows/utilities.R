@@ -332,6 +332,23 @@ increment_package_version <- function(package.id) {
 
 
 
+
+#' Construct message for log file
+#'
+#' @param msg (character) Message that will be added to the logfile.
+#'  
+#' @details Message is prepended with "----- " and the system time
+#' 
+msg <- function(msg) {
+  message("----- ", Sys.time(), ": ", msg)
+}
+
+
+
+
+
+
+
 #' Check if earlier unprocessed versions of a data package are in the queue
 #'
 #' The presence of such items may indicate the integrity of the series is 
