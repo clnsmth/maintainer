@@ -342,7 +342,7 @@ increment_package_version <- function(package.id) {
 #' 
 msg <- function(x) {
   x <- paste0("\n----- ", format(Sys.time(), "%b %d %H:%M:%S"), 
-              " [workflow manager]: ", x, "\n")
+              " [maintainer]: ", x, "\n")
   message(x)
 }
 
