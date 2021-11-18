@@ -31,7 +31,7 @@ workflow_manager <- function() {
   # Lock processing -----------------------------------------------------------
   
   # Stop if another workflow is already running
-  lockfile <- "/home/pasta/maintainer/temp/lock.txt"
+  lockfile <- "./temp/lock.txt"
   if (file.exists(lockfile)) {
     return(NULL)
   }
@@ -49,10 +49,10 @@ workflow_manager <- function() {
   
   # Create the log file and start logging
   log_file <- paste0("log_", format(Sys.time(), "%Y%m%d_%H%M%S"), ".txt")
-  log <- file(paste0("/home/pasta/maintainer/logs/", log_file), open = "wt")
+  log <- file(paste0("./logs/", log_file), open = "wt")
   sink(log, type = "message")
   message("----- Starting workflow_manager() at ", Sys.time())
-  on.exit(message("----- Copying ", log_file, " to /home/pasta/maintainer/logs"), add = TRUE)
+  on.exit(message("----- Copying ", log_file, " to ./logs"), add = TRUE)
   on.exit(message("----- Exiting workflow_manager() at ", Sys.time()), 
           add = TRUE)
   on.exit(sink(type = "message"), add = TRUE)
@@ -63,7 +63,7 @@ workflow_manager <- function() {
     send_email(
       from = config.email.address,
       to = config.email.address,
-      attachment = paste0("/home/pasta/maintainer/logs/", log_file),
+      attachment = paste0("./logs/", log_file),
       smtp.relay = "smtp.gmail.com",
       relay.user = config.email.address,
       relay.user.pass = config.email.pass,

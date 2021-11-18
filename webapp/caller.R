@@ -2,7 +2,7 @@
 # package occurs
 
 # Source workflow configuration variables and functions
-scripts <- list.files("/home/pasta/maintainer/workflows", full.names = TRUE)
+scripts <- list.files("./workflows", full.names = TRUE)
 invisible(sapply(scripts, source))
 
 # Call the top level function that manages all workflows
