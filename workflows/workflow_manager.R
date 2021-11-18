@@ -31,7 +31,7 @@ workflow_manager <- function() {
   # Lock processing -----------------------------------------------------------
   
   # Stop if another workflow is already running
-  lockfile <- "./temp/lock.txt"
+  lockfile <- "./webapp/lock.txt"
   if (file.exists(lockfile)) {
     return(NULL)
   }
@@ -157,7 +157,7 @@ workflow_manager <- function() {
     r <- delete_from_queue(new_pkg$index, new_pkg$id)
 
   }
-
+  
   return(NULL)
   
 }
