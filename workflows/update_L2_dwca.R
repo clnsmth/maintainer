@@ -37,6 +37,7 @@ update_L2_dwca <- function(id.L1.newest,
           stringr::str_to_title(core.name), " Core (", derived, ")")
   ecocomDP::convert_to_dwca(
     path = path, 
+    url = config.www,
     core_name = "event", 
     source_id = id.L1.newest, 
     derived_id = derived, 
