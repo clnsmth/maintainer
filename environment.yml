@@ -27,6 +27,7 @@ dependencies:
   - ncurses=6.2
   - openssl=1.1.1h
   - packaging=20.4
+  - pandoc=2.12
   - pcre=8.44
   - pip=20.2.4
   - pluggy=0.13.1
