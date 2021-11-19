@@ -182,11 +182,12 @@ get_derived <- function(package.id) {
   i <- (map$environment == config.environment) & (map$source == package.id)
   scope <- unlist(strsplit(map$derived[i], "\\."))[1]
   identifier <- unlist(strsplit(map$derived[i], "\\."))[2]
-  revision <- EDIutils::api_list_data_package_revisions(
-    scope = scope,
-    identifier = identifier,
-    filter = "newest", 
-    environment = config.environment)
+  revision <- suppressMessages(
+    EDIutils::api_list_data_package_revisions(
+      scope = scope,
+      identifier = identifier,
+      filter = "newest", 
+      environment = config.environment))
   res <- paste(c(scope, identifier, revision), collapse = ".")
   if (!any(i)) {
     return(NULL)
