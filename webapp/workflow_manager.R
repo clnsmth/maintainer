@@ -1,3 +1,10 @@
+# This script is called by the listener whenever an update to a subscribed data
+# package occurs
+
+
+
+# Source the workflow manager -------------------------------------------------
+
 #' A top level function for managing workflows
 #' 
 #' @description This function:
@@ -70,13 +77,14 @@ workflow_manager <- function() {
       msg = "Log file from workflow_manager\\(\\) is attached"),
     add = TRUE)
   
+  # Iterate through updates
   # Run while the queue has unprocessed items. It's possible for the queue to 
   # gain additional updates while the workflow_manager() is running, and 
   # because the listener only calls upon receiving an update, these updates
   # wouldn't get processed.
   while (!queue_is_empty()) {
     
-    # Identify the update -----------------------------------------------------
+    # Identify the update ----------------------------------------------------
     
     # Query the queue for an updated data package and stop if there is none
     msg("Checking for updates")
@@ -87,7 +95,7 @@ workflow_manager <- function() {
     }
     msg("Found an update (", new_pkg$id, ")")
     
-    # Check series integrity --------------------------------------------------
+    # Check series integrity -------------------------------------------------
     
     # Stop if an earlier version hasn't been processed
     msg("Checking series integrity")
@@ -127,27 +135,7 @@ workflow_manager <- function() {
     
     for (workflow in workflows) {
       msg(paste0("Running workflow: ", workflow))
-      
-      if (workflow == "update_L1") {
-        
-        update_L1(
-          id.L0.newest = new_pkg$id,
-          path = config.path, 
-          url = config.www, 
-          user.id = config.user.id,
-          user.pass = config.user.pass)
-        
-      } else if (workflow == "update_L2_dwca") {
-        
-        update_L2_dwca(
-          id.L1.newest = new_pkg$id,
-          core.name = "event",
-          path = config.path,
-          url = config.www,
-          user.id = config.user.id,
-          user.pass = config.user.pass)
-        
-      }
+      run_workflow(workflow, new_pkg_id = new_pkg$id)
     }
     
     # Remove the update from the queue
@@ -159,3 +147,17 @@ workflow_manager <- function() {
   return(NULL)
   
 }
+
+
+
+
+
+
+
+# Source configuration variables and functions --------------------------------
+scripts <- list.files("./workflows", full.names = TRUE)
+invisible(sapply(scripts, source))
+
+# Run workflow manager --------------------------------------------------------
+# Call the top level function that manages all workflows
+workflow_manager()
