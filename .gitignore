@@ -114,3 +114,4 @@ maintainer.Rproj
 *config.txt
 /logs/
 lock.txt
+maintainer.sqlite
