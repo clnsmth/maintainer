@@ -40,6 +40,7 @@ workflow_manager <- function() {
   # Stop if another workflow is already running
   lockfile <- "./webapp/lock.txt"
   if (file.exists(lockfile)) {
+    message("Workflow manager is locked")
     return(NULL)
   }
   
