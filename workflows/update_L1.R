@@ -73,7 +73,7 @@ update_L1 <- function(id.L0.newest,
   repo <- git2r::repository()
   changes <- paste0("./docs/assets/", names(plots), ".png")
   git2r::add(path = changes)
-  try(git2r::commit(message = "Update plots"), silent = TRUE)
+  git2r::commit(message = "Update plots")
   cred <- git2r::cred_user_pass(
     username = config.github.user, 
     password = config.github.pass)
