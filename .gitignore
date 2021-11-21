@@ -115,3 +115,4 @@ maintainer.Rproj
 /logs/
 lock.txt
 test.R
+webapp/maintainer.sqlite
