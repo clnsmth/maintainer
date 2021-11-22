@@ -47,8 +47,9 @@ workflow_manager <- function() {
   log <- file(paste0("./logs/", log_file), open = "wt")
   sink(log, type = "message")
   msg("Starting workflow manager")
-  on.exit(msg("Writing log file ", log_file), add = TRUE)
-  on.exit(msg("Emailing log file"), add = TRUE)
+  on.exit(msg("Writing log"), add = TRUE)
+  on.exit(message(log_file), add = TRUE)
+  on.exit(msg("Emailing log"), add = TRUE)
   on.exit(
     send_email(
       from = config.email.address,
