@@ -4,7 +4,7 @@
 run_workflow <- function(workflow, new_pkg_id) {
   
   if (workflow == "update_L1") {
-    
+
     update_L1(
       id.L0.newest = new_pkg_id,
       path = config.path, 
