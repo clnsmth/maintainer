@@ -412,6 +412,34 @@ queue_is_empty <- function() {
 
 
 
+#' Run the maintainer
+#' 
+#' @description Run a remotely deployed maintainer with its current state/configuration. This function is helpful when a manual reboot of the maintainer is needed to resume processing, possibly after a workflow error and subsequent fix.
+#' 
+#' @details This function randomly selects a data package identifier from the repository environment specified by the global variable \code{config.environment} and submits an HTTP POST request to the listener. This random package identifier is added to the queue, with the \code{env} field of the maintainer.sqlite database set to "localhost", which is recognized as being a "test" post and not an actual update, thus having not effect on the list of items to process other than cluttering the database with some extraneous items.
+#'
+run_maintainer <- function() {
+  idle <- TRUE
+  while (idle) {
+    identifiers <- suppressMessages(EDIutils::api_list_data_package_identifiers("edi", config.environment))
+    identifier <- sample(identifiers, 1)
+    revisions <- suppressMessages(EDIutils::api_list_data_package_revisions("edi", identifier, environment = config.environment))
+    revision <- sample(revisions, 1)
+    packageId <- paste(c("edi", identifier, revision), collapse = ".")
+    resp <- httr::POST(
+      url = "https://regan.edirepository.org/maintainer", 
+      body = packageId)
+    idle <- httr::status_code(resp) != 200
+  }
+}
+
+
+
+
+
+
+
+
 #' Send email to a Gmail account
 #'
 #' @param from (character) Email address
