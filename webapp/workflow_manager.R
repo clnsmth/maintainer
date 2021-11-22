@@ -48,7 +48,7 @@ workflow_manager <- function() {
   sink(log, type = "message")
   msg("Starting workflow manager")
   on.exit(msg("Writing log"), add = TRUE)
-  on.exit(message(log_file), add = TRUE)
+  on.exit(message("/maintainer/logs/", log_file), add = TRUE)
   on.exit(msg("Emailing log"), add = TRUE)
   on.exit(
     send_email(
