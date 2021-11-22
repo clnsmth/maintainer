@@ -110,6 +110,7 @@ workflow_manager <- function() {
     if (has_unprocessed_versions(new_pkg$id)) {
       return(NULL)
     }
+    message("No issues with series integrity")
     
     # Compare versions --------------------------------------------------------
     
@@ -117,7 +118,7 @@ workflow_manager <- function() {
     # previous versions
     previous_version <- get_previous_version(new_pkg$id)
     if (!is.null(previous_version)) {
-      msg("Looking for metadata changes")
+      msg("Comparing EML metadata")
       message("Comparing ", new_pkg$id, " to ", previous_version)
       eml_newest <- EDIutils::api_read_metadata(
         package.id = new_pkg$id, 
@@ -125,9 +126,13 @@ workflow_manager <- function() {
       eml_previous <- EDIutils::api_read_metadata(
         package.id = previous_version, 
         environment = config.environment)
-      message(
-        capture.output(
-          compare_eml(eml_newest, eml_previous, return.all = FALSE)))
+      res <- compare_eml(eml_newest, eml_previous, return.all = FALSE)
+      if (is.null(res)) {
+        message("No meaningful differences found")
+      } else {
+        message("Found meaningful differences at xpaths:\n")
+        message(paste(res, collapse = "\n"))
+      }
     }
     
     # Identify workflow -------------------------------------------------------
