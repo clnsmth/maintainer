@@ -46,8 +46,8 @@ workflow_manager <- function() {
   log_file <- paste0("log_", format(Sys.time(), "%Y%m%d_%H%M%S"), ".txt")
   log <- file(paste0("./logs/", log_file), open = "wt")
   sink(log, type = "message")
-  msg("Starting")
-  on.exit(msg("Copying ", log_file, " to ./logs"), add = TRUE)
+  msg("Starting workflow manager")
+  on.exit(msg("Writing log file ", log_file), add = TRUE)
   on.exit(msg("Emailing log file"), add = TRUE)
   on.exit(
     send_email(
@@ -60,7 +60,7 @@ workflow_manager <- function() {
       subject = log_file,
       msg = "Log file from workflow_manager\\(\\) is attached"),
     add = TRUE)
-  on.exit(msg("Exiting"), add = TRUE)
+  on.exit(msg("Exiting workflow manager"), add = TRUE)
   on.exit(sink(type = "message"), add = TRUE)
   on.exit(close(log), add = TRUE)
   
