@@ -85,12 +85,16 @@ workflow_manager <- function() {
   # gain additional updates while the workflow_manager() is running, and 
   # because the listener only calls upon receiving an update, these updates
   # wouldn't get processed.
+  msg("Checking for updates")
+  if (queue_is_empty()) {
+    message("No updates found")
+    return(NULL)
+  }
   while (!queue_is_empty()) {
     
     # Identify the update -----------------------------------------------------
     
     # Query the queue for an updated data package and stop if there is none
-    msg("Checking for updates")
     new_pkg <- get_from_queue()
     if (is.null(new_pkg)) {
       message("No update found")
