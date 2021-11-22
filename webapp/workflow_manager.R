@@ -48,11 +48,6 @@ workflow_manager <- function() {
   sink(log, type = "message")
   msg("Starting")
   on.exit(msg("Copying ", log_file, " to ./logs"), add = TRUE)
-  on.exit(msg("Exiting"), add = TRUE)
-  on.exit(sink(type = "message"), add = TRUE)
-  on.exit(close(log), add = TRUE)
-  
-  # Email the log file when the workflow completes
   on.exit(msg("Emailing log file"), add = TRUE)
   on.exit(
     send_email(
@@ -65,6 +60,9 @@ workflow_manager <- function() {
       subject = log_file,
       msg = "Log file from workflow_manager\\(\\) is attached"),
     add = TRUE)
+  on.exit(msg("Exiting"), add = TRUE)
+  on.exit(sink(type = "message"), add = TRUE)
+  on.exit(close(log), add = TRUE)
   
   # Lock processing -----------------------------------------------------------
   
