@@ -80,26 +80,26 @@ workflow_manager <- function() {
   invisible(file.create(lockfile))
   on.exit(file.remove(lockfile), add = TRUE)
   
-  # Iterate through updates ---------------------------------------------------
-  # Run while the queue has unprocessed items. It's possible for the queue to 
-  # gain additional updates while the workflow_manager() is running, and 
-  # because the listener only calls upon receiving an update, these updates
-  # wouldn't get processed.
+  # Check for updates ---------------------------------------------------------
+  
+  # Query the queue for an updated data package and stop if there is none
   msg("Checking for updates")
   if (queue_is_empty()) {
     message("No updates found")
     return(NULL)
   }
+  
+  # Iterate through updates ---------------------------------------------------
+  # Run while the queue has unprocessed items. It's possible for the queue to 
+  # gain additional updates while the workflow_manager() is running, and 
+  # because the listener only calls upon receiving an update, these updates
+  # wouldn't get processed.
+  
   while (!queue_is_empty()) {
     
     # Identify the update -----------------------------------------------------
     
-    # Query the queue for an updated data package and stop if there is none
     new_pkg <- get_from_queue()
-    if (is.null(new_pkg)) {
-      message("No update found")
-      return(NULL)
-    }
     message("Found an update (", new_pkg$id, ")")
     
     # Check series integrity --------------------------------------------------
