@@ -35,19 +35,6 @@
 #'
 workflow_manager <- function() {
   
-  # Lock processing -----------------------------------------------------------
-  
-  # Stop if another workflow is already running
-  lockfile <- "./webapp/lock.txt"
-  if (file.exists(lockfile)) {
-    message("Workflow manager is locked")
-    return(NULL)
-  }
-  
-  # Stop other workflows from running while this one is
-  invisible(file.create(lockfile))
-  on.exit(file.remove(lockfile), add = TRUE)
-  
   # Initialize logging --------------------------------------------------------
   
   # Return warnings in a form that can be logged to file
@@ -66,6 +53,7 @@ workflow_manager <- function() {
   on.exit(close(log), add = TRUE)
   
   # Email the log file when the workflow completes
+  on.exit(msg("Emailing log file"), add = TRUE)
   on.exit(
     send_email(
       from = config.email.address,
@@ -78,29 +66,45 @@ workflow_manager <- function() {
       msg = "Log file from workflow_manager\\(\\) is attached"),
     add = TRUE)
   
-  # Iterate through updates
+  # Lock processing -----------------------------------------------------------
+  
+  # Stop if another workflow is already running
+  lockfile <- "./webapp/lock.txt"
+  if (file.exists(lockfile)) {
+    msg("The workflow manager is locked")
+    message("The workflow manager may already be running. If you feel you've ",
+            "reached this message in error, then manually remove the lock ",
+            "file (/maintainer/webapp/lock.txt) and try again.")
+    return(NULL)
+  }
+  
+  # Stop other workflows from running while this process is underway
+  invisible(file.create(lockfile))
+  on.exit(file.remove(lockfile), add = TRUE)
+  
+  # Iterate through updates ---------------------------------------------------
   # Run while the queue has unprocessed items. It's possible for the queue to 
   # gain additional updates while the workflow_manager() is running, and 
   # because the listener only calls upon receiving an update, these updates
   # wouldn't get processed.
   while (!queue_is_empty()) {
     
-    # Identify the update ----------------------------------------------------
+    # Identify the update -----------------------------------------------------
     
     # Query the queue for an updated data package and stop if there is none
     msg("Checking for updates")
     new_pkg <- get_from_queue()
     if (is.null(new_pkg)) {
-      msg("No update found")
+      message("No update found")
       return(NULL)
     }
-    msg("Found an update (", new_pkg$id, ")")
+    message("Found an update (", new_pkg$id, ")")
     
-    # Check series integrity -------------------------------------------------
+    # Check series integrity --------------------------------------------------
     
     # Stop if an earlier version hasn't been processed
     msg("Checking series integrity")
-    if (queue_has_unprocessed_versions(new_pkg$id)) {
+    if (has_unprocessed_versions(new_pkg$id)) {
       return(NULL)
     }
     
@@ -110,7 +114,8 @@ workflow_manager <- function() {
     # previous versions
     previous_version <- get_previous_version(new_pkg$id)
     if (!is.null(previous_version)) {
-      msg("Comparing versions")
+      msg("Looking for metadata changes")
+      message("Comparing ", new_pkg$id, " to ", previous_version)
       eml_newest <- EDIutils::api_read_metadata(
         package.id = new_pkg$id, 
         environment = config.environment)
@@ -125,12 +130,13 @@ workflow_manager <- function() {
     # Identify workflow -------------------------------------------------------
     
     # Get name of the workflow to run from ./maintainer/webapp/workflow_map.csv
+    msg("Identifying workflow(s)")
     workflows <- get_workflows(new_pkg$id)
     if (is.null(workflows)) {
-      msg("Could not find workflow for ", new_pkg$id)
+      message("Could not find workflow(s) for ", new_pkg$id)
       return(NULL)
     }
-    msg("Found workflow for ", new_pkg$id)
+    message("Found workflow(s) for ", new_pkg$id)
     
     # Run workflow(s) ---------------------------------------------------------
     
@@ -138,9 +144,10 @@ workflow_manager <- function() {
       msg(paste0("Running workflow: ", workflow))
       run_workflow(workflow, new_pkg_id = new_pkg$id)
     }
+    msg("All workflow(s) have completed")
     
-    # Remove the update from the queue
-    msg("Deleting ", new_pkg$id, " from the queue")
+    # Remove the update from the queue ----------------------------------------
+    msg("Removing ", new_pkg$id, " from the queue")
     r <- delete_from_queue(new_pkg$index, new_pkg$id)
 
   }

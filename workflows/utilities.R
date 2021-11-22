@@ -312,6 +312,42 @@ get_workflows <- function(package.id) {
 
 
 
+#' Check if earlier unprocessed versions of a data package are in the queue
+#'
+#' The presence of such items may indicate the integrity of the series is 
+#' compromised and processing should be halted until the issue is addressed.
+#'
+#' @param package.id 
+#'
+#' @return (logical) TRUE if earlier versions of \code{package.id} are found,
+#' otherwise FALSE
+#'
+has_unprocessed_versions <- function(package.id) {
+  id <- stringr::str_remove(package.id, "\\.[:digit:]*$")
+  rev <- stringr::str_extract(package.id, "(?<=\\.)[:digit:]*$")
+  queue <- get_from_queue(filter = "unprocessed")$id
+  if (is.null(queue)) {
+    return(FALSE)
+  }
+  ids <- stringr::str_remove(queue, "\\.[:digit:]*$")
+  revs <- stringr::str_extract(queue, "(?<=\\.)[:digit:]*$")
+  i <- rev > revs[ids %in% id]
+  if (any(i)) {
+    message("Unprocessed earlier versions of ", id, " found in the queue. ",
+            "These earlier versions (", queue[i], ") need to ",
+            "be processed before ", package.id, ".")
+    return(TRUE)
+  } else {
+    return(FALSE)
+  }
+}
+
+
+
+
+
+
+
 
 #' Increment data package version number
 #'
@@ -350,43 +386,6 @@ msg <- function(...) {
   x <- paste0("\n----- ", format(Sys.time(), "%b %d %H:%M:%S"), 
               " [maintainer]: ", x, "\n")
   message(x)
-}
-
-
-
-
-
-
-
-#' Check if earlier unprocessed versions of a data package are in the queue
-#'
-#' The presence of such items may indicate the integrity of the series is 
-#' compromised and processing should be halted until the issue is addressed.
-#'
-#' @param package.id 
-#'
-#' @return (logical) TRUE if earlier versions of \code{package.id} are found,
-#' otherwise FALSE
-#'
-queue_has_unprocessed_versions <- function(package.id) {
-  id <- stringr::str_remove(package.id, "\\.[:digit:]*$")
-  rev <- stringr::str_extract(package.id, "(?<=\\.)[:digit:]*$")
-  queue <- get_from_queue(filter = "unprocessed")$id
-  if (is.null(queue)) {
-    return(FALSE)
-  }
-  ids <- stringr::str_remove(queue, "\\.[:digit:]*$")
-  revs <- stringr::str_extract(queue, "(?<=\\.)[:digit:]*$")
-  i <- rev > revs[ids %in% id]
-  if (any(i)) {
-    message("Unprocessed earlier versions of ", id, " found in the queue. ",
-            "These earlier versions (", queue[i], ") may need to ",
-            "be processed before ", package.id, ". Devine intervention is ",
-            "required.")
-    return(TRUE)
-  } else {
-    return(FALSE)
-  }
 }
 
 
