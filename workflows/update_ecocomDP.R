@@ -50,38 +50,38 @@ update_ecocomDP <- function(source_id,
     derived_id = derived_id_next, 
     url = url)
   
-  # # Create plots for the project website
-  # message("Updating plots")
-  # flat = ecocomDP::flatten_data(ecocomDP::read_data(from = path))
-  # plots <- list(
-  #   sampling = ecocomDP::plot_sample_space_time(flat),
-  #   accumulation = ecocomDP::plot_taxa_accum_time(flat),
-  #   diversity = ecocomDP::plot_taxa_diversity(flat, time_window_size = "month"),
-  #   shared = ecocomDP::plot_taxa_shared_sites(flat),
-  #   occurrence = ecocomDP::plot_taxa_occur_freq(flat))
-  # 
-  # # Save plots to the website ./docs/assets directory
-  # r <- lapply(
-  #   seq_along(plots),
-  #   function(i) {
-  #     ggplot2::ggsave(
-  #       filename = paste0("./docs/assets/", names(plots)[i], ".png"),
-  #       plot = plots[[i]],
-  #       width = 5,
-  #       height = 3,
-  #       units = "in",
-  #       bg = "white")
-  #   })
-  # 
-  # # Commit plots and push to GitHub
-  # repo <- git2r::repository()
-  # changes <- paste0("./docs/assets/", names(plots), ".png")
-  # git2r::add(path = changes)
-  # try(git2r::commit(message = "Update plots"))
-  # cred <- git2r::cred_user_pass(
-  #   username = config.github.user, 
-  #   password = config.github.pass)
-  # git2r::push(repo, "origin", refspec = "refs/heads/main", credentials = cred)
+  # Create plots for the project website
+  message("Updating plots")
+  flat = ecocomDP::flatten_data(ecocomDP::read_data(from = path))
+  plots <- list(
+    diversity = ecocomDP::plot_taxa_diversity(flat, time_window_size = "month"),
+    shared = ecocomDP::plot_taxa_shared_sites(flat),
+    occurrence = ecocomDP::plot_taxa_occur_freq(flat))
+
+  # Save plots to the website ./docs/assets directory
+  r <- lapply(
+    seq_along(plots),
+    function(i) {
+      ggplot2::ggsave(
+        filename = paste0("./docs/assets/", names(plots)[i], ".png"),
+        plot = plots[[i]],
+        width = 5,
+        height = 3,
+        units = "in",
+        bg = "white")
+    })
+
+  # Commit plots and push to GitHub
+  repo <- git2r::repository()
+  changes <- paste0("./docs/assets/", names(plots), ".png")
+  git2r::add(path = changes)
+  try(git2r::commit(message = "Update plots"))
+  cred <- git2r::cred_user_pass(
+    username = config.github.user,
+    password = config.github.pass)
+  with_timeout(
+    expr = git2r::push(repo, "origin", refspec = "refs/heads/main", credentials = cred),
+    limit = 10)
 
   
   # Upload to EDI
