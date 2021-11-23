@@ -1,5 +1,3 @@
 environment,source_id,derived_id,workflow
-staging,edi.565,edi.566,update_ecocomDP
-staging,edi.566,edi.567,update_DwCA
-production,knb-lter-hfr.118,edi.193,update_ecocomDP
-production,edi.193,edi.834,update_DwCA
+staging,edi.556,edi.557,update_ecocomDP
+staging,edi.557,edi.558,update_DwCA
