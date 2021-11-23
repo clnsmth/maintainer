@@ -529,6 +529,7 @@ queue_update <- function(path = "./webapp/maintainer.sqlite",
 #'
 run_maintainer <- function() {
   idle <- TRUE
+  i <- 1
   while (idle) {
     identifiers <- suppressMessages(EDIutils::api_list_data_package_identifiers("edi", config.environment))
     identifier <- sample(identifiers, 1)
@@ -539,6 +540,11 @@ run_maintainer <- function() {
       url = "https://regan.edirepository.org/maintainer", 
       body = packageId)
     idle <- httr::status_code(resp) != 200
+    i <- i + 1
+    if (i == 3) {
+      idle <- FALSE
+      message("Failed on 3 consequtive attempts. Taking a break.")
+    }
   }
 }
 
