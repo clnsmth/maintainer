@@ -582,3 +582,31 @@ send_email <- function(from,
                subject, "-m", msg)
   system(cmd)
 }
+
+
+
+
+
+
+
+
+#' Time out a function that's taking too long ...
+#'
+#' @param expr An expression to be executed
+#' @param limit Seconds to wait before timing out
+#'
+#' @return Return from \code{expr}, or an error if \code{limit} is exceeded
+#' 
+with_timeout <- function(expr, limit) {
+  expr_txt <- deparse(substitute(expr))
+  setTimeLimit(cpu = limit, elapsed = limit, transient = TRUE)
+  on.exit(setTimeLimit(cpu = Inf, elapsed = Inf, transient = FALSE))
+  tryCatch({
+    eval(parse(text = expr_txt))
+  }, error = function(e) {
+    if (grepl("reached elapsed time limit|reached CPU time limit", e$message)) {
+      stop(e$message)
+    }
+  })
+}
+
