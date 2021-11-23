@@ -101,7 +101,7 @@ workflow_manager <- function() {
     
     # Identify the update -----------------------------------------------------
     
-    new_pkg <- queue_select_next()
+    new_pkg <- queue_get_next()
     message("Found an update (", new_pkg$id, ")")
     
     # Check series integrity --------------------------------------------------

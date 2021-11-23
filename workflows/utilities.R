@@ -244,7 +244,7 @@ get_workflows <- function(packageId) {
 check_series_integrity <- function(packageId) {
   id <- stringr::str_remove(packageId, "\\.[:digit:]*$")
   rev <- stringr::str_extract(packageId, "(?<=\\.)[:digit:]*$")
-  queue <- queue_select_next(filter = "unprocessed")$id
+  queue <- queue_get_next(filter = "unprocessed")$id
   if (is.null(queue)) {
     return(FALSE)
   }
@@ -357,7 +357,7 @@ queue_insert <- function(path = "./webapp/maintainer.sqlite",
 #' @return (logical) TRUE if empty, otherwise FALSE
 #'
 queue_is_empty <- function() {
-  res <- is.null(queue_select_next(filter = "unprocessed"))
+  res <- is.null(queue_get_next(filter = "unprocessed"))
   return(res)
 }
 
@@ -370,9 +370,10 @@ queue_is_empty <- function() {
 
 #' Remove an update from the queue (maintainer.sqlite)
 #'
-#' @param index (integer) Index of item to remove
+#' @param index (integer) Index of item to remove. References the "index" field.
 #'
-#' @return (logical) Indicates whether the item was successfully removed
+#' @return (logical) Indicates whether the item was successfully removed (i.e.
+#' the value in the "processed" field changed from "0" to "1")
 #' 
 #' @details This function marks the corresponding data package as processed
 #' 
@@ -419,8 +420,8 @@ queue_select_all <- function(path = "./webapp/maintainer.sqlite") {
 
 #' Get the next update from the queue (maintainer.sqlite)
 #' 
-#' @param filter (character) If "unprocessed" a full list of unprocessed items 
-#' are returned.
+#' @param filter (character) If "unprocessed", all unprocessed updates are 
+#' returned.
 #' 
 #' @details The queue is an SQLite data base located at 
 #' \code{/maintainer/webapp/maintainer.sqlite} and is accessible with HTTP 
@@ -434,7 +435,7 @@ queue_select_all <- function(path = "./webapp/maintainer.sqlite") {
 #' \item{id}{(character) Data package identifier in the form 
 #' "scope.identifier.revision"}
 #' 
-queue_select_next <- function(filter = NULL) {
+queue_get_next <- function(filter = NULL) {
   if (config.environment == "staging") {
     url <- "https://regan.edirepository.org/maintainer/package-s.lternet.edu"
   } else if (config.environment == "production") {
