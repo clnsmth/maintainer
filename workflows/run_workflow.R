@@ -1,26 +1,35 @@
-# This function is called by the workflow_manager() and is expecting the 
-# workflow parameter. Any contents within the function can be customized.
-
-run_workflow <- function(workflow, new_pkg_id) {
+#' Logic controlling workflow execution
+#'
+#' @param workflow (character) Name of workflow to execute for a given source
+#' data package. The \code{workflow} value is listed in the "workflow" column
+#' of the workflow map located at: /maintainer/webapp/workflow_map.csv
+#' @param source_id (character) Name of the input data source to 
+#' \code{workflow}
+#' 
+#' @details This function is called by the workflow_manager() located at:
+#' /maintainer/webapp/workflow_manager.R
+#'
+run_workflow <- function(workflow, source_id) {
   
-  if (workflow == "update_L1") {
-
-    update_L1(
-      id.L0.newest = new_pkg_id,
+  if (workflow == "update_ecocomDP") {
+    
+    update_ecocomDP(
+      source_id = source_id,
       path = config.path, 
       url = config.www, 
-      user.id = config.user.id,
-      user.pass = config.user.pass)
+      user_id = config.user.id,
+      user_pass = config.user.pass,
+      environment = config.environment)
     
-  } else if (workflow == "update_L2_dwca") {
+  } else if (workflow == "update_DwCA") {
     
-    update_L2_dwca(
-      id.L1.newest = new_pkg_id,
-      core.name = "event",
+    update_DwCA(
+      source_id = source_id,
       path = config.path,
       url = config.www,
-      user.id = config.user.id,
-      user.pass = config.user.pass)
+      user_id = config.user.id,
+      user_pass = config.user.pass,
+      environment = config.environment)
     
   }
   

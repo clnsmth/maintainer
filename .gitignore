@@ -116,3 +116,4 @@ maintainer.Rproj
 lock.txt
 test.R
 webapp/maintainer.sqlite
+README.md

@@ -1,15 +1,18 @@
-#' Update an L1 ecocomDP data package from it's updated L0 source
+#' Update an ecocomDP data package
 #'
-#' @description Updates an L1 data package when it's L0 source data package has 
-#' been updated. This function is a wrapper to several subroutines.
+#' @description This function updates an L1 ecocomDP data package from its 
+#' source data package
 #'
-#' @param id.L0.newest (character) Identifier of newest L0 data package
-#' @param path (character) Directory to which L1 tables, scripts, and metadata 
-#' will be written
+#' @param source_id (character) Identifier of newest L0 data package
+#' @param path (character) Directory to which the derived L1 ecocomDP tables, 
+#' scripts, and metadata will be written
 #' @param url (character) Publicly accessible URL to \code{path} for download 
-#' by a data repository. Is specified by the \code{config.www} global variable.
-#' @param user.id (character) User identifier for the EDI data repository
-#' @param user.pass (character) Password for \code{user.id}
+#' by a data repository
+#' @param user_id (character) User identifier for the EDI data repository
+#' @param user_pass (character) Password for \code{user_id}
+#' @param environment (character) Environment of the EDI data repository from 
+#' which \code{source_id} originates and the derived data package will be 
+#' written to
 #'
 #' @details The updated L1 data package published in EDI and in the sub-system
 #' environment specified by the global variable \code{config.environment}. 
@@ -20,30 +23,31 @@
 #' Requires an L0 and L1 already exist in the EDI repository, because 
 #' conversion script is archived with the L1 data package.
 #'
-update_L1 <- function(id.L0.newest, 
-                      path, 
-                      url, 
-                      user.id, 
-                      user.pass) {
+update_ecocomDP <- function(source_id, 
+                            path, 
+                            url, 
+                            user_id, 
+                            user_pass,
+                            environment) {
   
   # Look up identifier of derived data package
-  derived <- get_derived(id.L0.newest)
-  derived_next <- increment_package_version(derived)
-  message("Converting L0 (", id.L0.newest, ") to L1 (", derived_next, ")")
+  derived_id <- get_derived_id(source_id)
+  derived_id_next <- increment_package_version(derived_id)
+  message("Converting L0 (", source_id, ") to L1 (", derived_id_next, ")")
   
   # Download and source conversion script from the previous L1 data package
   message("Downloading and sourcing L0-to-L1 conversion script")
   eml_L1_newest <- EDIutils::api_read_metadata(
-    package.id = derived, 
-    environment = config.environment)
-  download_and_source_conversion_script(eml_L1_newest, path)
+    package.id = derived_id, 
+    environment = environment)
+  dwnld_and_src_script(eml_L1_newest, path)
   
   # Create L1
-  message("Running L0-to-L1 conversion script")
-  r <- run_conversion_script(
+  message("Running create_ecocomDP()")
+  r <- create_ecocomDP(
     path = path,
-    id.L0.newest = id.L0.newest,
-    id.L1.next = derived_next,
+    source_id = source_id, 
+    derived_id = derived_id_next, 
     url = url)
   
   # # Create plots for the project website
@@ -81,19 +85,20 @@ update_L1 <- function(id.L0.newest,
 
   
   # Upload to EDI
-  message("Uploading L1 (", derived_next, 
-          ") to ", "EDI")
-  r <- upload_to_repository(
-    path = config.path,
-    package.id = derived_next,
-    user.id = user.id,
-    user.pass = user.pass)
+  message("Uploading L1 (", derived_id_next, ") to ", "EDI")
+  EDIutils::api_update_data_package(
+    path = path, 
+    package.id = derived_id_next, 
+    user.id = user_id, 
+    user.pass = user_pass,
+    environment = environment,
+    affiliation = "EDI")
+  
   
   # Clear workspace
   message("Clearing workspace")
   files <- list.files(config.path, full.names = TRUE)
-  i <- grep("^(?!README).*$", list.files(config.path), perl = TRUE)
-  file.remove(files[i])
+  file.remove(files)
 
 }
 
@@ -104,7 +109,7 @@ update_L1 <- function(id.L0.newest,
 
 
 
-#' Download and source L0 to L1 conversion script
+#' Download and source the L0 to L1 conversion script
 #'
 #' @param eml (xml_document xml_node) EML of newest derived L1. The L0-to-L1 
 #' conversion script listed in \code{eml} will be used to create the derived
@@ -116,7 +121,7 @@ update_L1 <- function(id.L0.newest,
 #' @details The script is downloaded to \code{path} and then parsed to identify 
 #' R libraries used by the script which are installed if not already.
 #'
-download_and_source_conversion_script <- function(eml, path) {
+dwnld_and_src_script <- function(eml, path) {
   message("Downloading and sourcing the conversion script")
   other_entities <- xml2::xml_text(
     xml2::xml_find_all(eml, ".//otherEntity/physical/objectName"))
@@ -129,44 +134,4 @@ download_and_source_conversion_script <- function(eml, path) {
     httr::write_disk(paste0(path, "/create_ecocomDP.R"), overwrite = TRUE), 
     httr::user_agent("ecocomDP"))
   suppressMessages(source(paste0(path, "/create_ecocomDP.R")))
-}
-
-
-
-
-
-
-
-
-#' Run L0 to L1 conversion script
-#' 
-#' @description This is a wrapper to create_ecocomDP() functions, which have a 
-#' standardized set of input arguments.
-#'
-#' @param path (character) Directory to which L1 tables, scripts, and metadata 
-#' will be written.
-#' @param id.L0.newest (character) Identifier of newest L0 data package.
-#' @param id.L1.next (character) Identifier of new L1 being created by this 
-#' script
-#' @param url (character) Publicly accessible URL to \code{path} for download 
-#' by the ED data repository. Is set by the \code{config.www} global variable.
-#'
-run_conversion_script <- function(path, 
-                                  id.L0.newest, 
-                                  id.L1.next, 
-                                  url) {
-  # Load Global Environment config
-  if (exists("config.environment", envir = .GlobalEnv)) {
-    environment <- get("config.environment", envir = .GlobalEnv)
-  } else {
-    environment <- "production"
-  }
-  # Run script
-  message(paste0("Creating new L1 (", id.L1.next, ") from newest L0 (", 
-                 id.L0.newest, ")"))
-  r <- create_ecocomDP(
-    path = path,
-    source_id = id.L0.newest, 
-    derived_id = id.L1.next, 
-    url = url)
 }

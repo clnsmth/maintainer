@@ -2,7 +2,7 @@
 #wd <- getwd()
 #libs <- rownames(installed.packages())
 #res <- c(wd, libs)
-get_from_queue <- function(filter = NULL) {
+pop_queue <- function(filter = NULL) {
   if (config.environment == "staging") {
     url <- "https://regan.edirepository.org/maintainer/package-s.lternet.edu"
   } else if (config.environment == "production") {
@@ -21,6 +21,6 @@ get_from_queue <- function(filter = NULL) {
   }
 }
 config.environment <- "staging"
-niq <- get_from_queue()
+niq <- pop_queue()
 res <- niq$id
 writeLines(text = res, con = "/home/pasta/maintainer/webapp/test_result.txt")
