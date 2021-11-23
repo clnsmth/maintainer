@@ -101,7 +101,7 @@ workflow_manager <- function() {
     
     # Identify the update -----------------------------------------------------
     
-    new_pkg <- pop_queue()
+    new_pkg <- queue_select_next()
     message("Found an update (", new_pkg$id, ")")
     
     # Check series integrity --------------------------------------------------
@@ -160,7 +160,7 @@ workflow_manager <- function() {
     # Remove the update from the queue ----------------------------------------
     
     msg("Removing ", new_pkg$id, " from the queue")
-    r <- remove_from_queue(new_pkg$index)
+    r <- queue_remove(new_pkg$index)
 
   }
   

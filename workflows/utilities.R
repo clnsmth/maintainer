@@ -244,7 +244,7 @@ get_workflows <- function(packageId) {
 check_series_integrity <- function(packageId) {
   id <- stringr::str_remove(packageId, "\\.[:digit:]*$")
   rev <- stringr::str_extract(packageId, "(?<=\\.)[:digit:]*$")
-  queue <- pop_queue(filter = "unprocessed")$id
+  queue <- queue_select_next(filter = "unprocessed")$id
   if (is.null(queue)) {
     return(FALSE)
   }
@@ -315,7 +315,109 @@ msg <- function(...) {
 
 
 
-#' Get next item from the processing queue
+#' Manually insert a record into queue (maintainer.sqlite)
+#'
+#' @param path (character) Path to the maintainer.sqlite
+#' @param pid (character) Package identifier with form 
+#' "scope.identifier.revision"
+#' @param env (character) Repository environment from which \code{pid} 
+#' originates
+#' @param dt (character) Date time of insert of the format 
+#' "YYYY-MM-DD hh:mm:ss.ssssss"
+#' @param processed (numeric) Indication of whether the record has been 
+#' processed (1 = TRUE, 0 = FALSE)
+#'
+#' @return (numeric) A value of 1, if successful
+#'
+queue_insert <- function(path = "./webapp/maintainer.sqlite", 
+                         pid, 
+                         env, 
+                         dt = paste0(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), ".000000"), 
+                         processed) {
+  con <- RSQLite::dbConnect(RSQLite::SQLite(), path)
+  next_record <- as.numeric(
+    RSQLite::dbGetQuery(con, "SELECT max(`index`) FROM events")) + 1
+  statement <- paste0("INSERT INTO events (`index`, pid, env, dt, processed) VALUES(",
+                      next_record, ", '", pid, "', '", env, "', ", 
+                      "'", dt, "', ", processed, ")")
+  res <- RSQLite::dbExecute(con, statement)
+  RSQLite::dbDisconnect(con)
+  return(res)
+}
+
+
+
+
+
+
+
+
+#' Check if there are any unprocessed items in the queue (maintainer.sqlite)
+#'
+#' @return (logical) TRUE if empty, otherwise FALSE
+#'
+queue_is_empty <- function() {
+  res <- is.null(queue_select_next(filter = "unprocessed"))
+  return(res)
+}
+
+
+
+
+
+
+
+
+#' Remove an update from the queue (maintainer.sqlite)
+#'
+#' @param index (integer) Index of item to remove
+#'
+#' @return (logical) Indicates whether the item was successfully removed
+#' 
+#' @details This function marks the corresponding data package as processed
+#' 
+queue_remove <- function(index) {
+  # Only the index number is needed to delete an item from the "production" 
+  # and "staging" queues (it's the same queue).
+  r <- httr::DELETE(
+    paste0("https://regan.edirepository.org/maintainer/", index))
+  if (httr::status_code(r) == 200) {
+    return(TRUE)
+  } else {
+    message("Could not remove item ", index, " from the queue. Devine ",
+            "intervention is needed.")
+    return(FALSE)
+  }
+}
+
+
+
+
+
+
+
+
+#' Return all fields and records in the queue (maintainer.sqlite)
+#'
+#' @param path (character) Path to the maintainer.sqlite
+#'
+#' @return (data.frame) The queue
+#' 
+queue_select_all <- function(path = "./webapp/maintainer.sqlite") {
+  con <- RSQLite::dbConnect(RSQLite::SQLite(), path)
+  res <- RSQLite::dbGetQuery(con, 'SELECT * FROM events')
+  RSQLite::dbDisconnect(con)
+  return(res)
+}
+
+
+
+
+
+
+
+
+#' Get the next update from the queue (maintainer.sqlite)
 #' 
 #' @param filter (character) If "unprocessed" a full list of unprocessed items 
 #' are returned.
@@ -332,7 +434,7 @@ msg <- function(...) {
 #' \item{id}{(character) Data package identifier in the form 
 #' "scope.identifier.revision"}
 #' 
-pop_queue <- function(filter = NULL) {
+queue_select_next <- function(filter = NULL) {
   if (config.environment == "staging") {
     url <- "https://regan.edirepository.org/maintainer/package-s.lternet.edu"
   } else if (config.environment == "production") {
@@ -357,43 +459,25 @@ pop_queue <- function(filter = NULL) {
 
 
 
-
-#' Check if the processing queue is empty
+#' Update a value in the queue (maintainer.sqlite)
 #'
-#' @return (logical) TRUE if empty, otherwise FALSE
+#' @param path (character) Path to the maintainer.sqlite
+#' @param index (numeric) Index of record to which \code{value} will be applied
+#' @param field (character) Name of field to which \code{value} will be applied
+#' @param value (character or numeric) Value to set
 #'
-queue_is_empty <- function() {
-  res <- is.null(pop_queue(filter = "unprocessed"))
+#' @return (numeric) A value of 1, if successful
+#'
+queue_update <- function(path = "./webapp/maintainer.sqlite", 
+                         index, 
+                         field, 
+                         value) {
+  con <- RSQLite::dbConnect(RSQLite::SQLite(), path)
+  statement <- paste0("UPDATE events SET ", field, "=", value, " WHERE ",
+                      "`index`=", index)
+  res <- RSQLite::dbExecute(con, statement)
+  RSQLite::dbDisconnect(con)
   return(res)
-}
-
-
-
-
-
-
-
-
-#' Remove an item from the maintainer queue
-#'
-#' @param index (integer) Index of item to remove
-#'
-#' @return (logical) Indicates whether the item was successfully removed
-#' 
-#' @details This function marks the corresponding data package as processed
-#' 
-remove_from_queue <- function(index) {
-  # Only the index number is needed to delete an item from the "production" 
-  # and "staging" queues (it's the same queue).
-  r <- httr::DELETE(
-    paste0("https://regan.edirepository.org/maintainer/", index))
-  if (httr::status_code(r) == 200) {
-    return(TRUE)
-  } else {
-    message("Could not remove item ", index, " from the queue. Devine ",
-            "intervention is needed.")
-    return(FALSE)
-  }
 }
 
 
