@@ -315,6 +315,72 @@ msg <- function(...) {
 
 
 
+#' Delete record from queue (maintainer.sqlite)
+#'
+#' @param path (character) Path to the maintainer.sqlite
+#' @param index (numeric) Index of record to which \code{value} will be applied
+#'
+#' @return (numeric) A value of 1, if successful
+#' 
+queue_delete <- function(path = "./webapp/maintainer.sqlite",
+                         index) {
+  con <- RSQLite::dbConnect(RSQLite::SQLite(), path)
+  statement <- paste0("DELETE from events WHERE `index`=", index)
+  res <- RSQLite::dbExecute(con, statement)
+  RSQLite::dbDisconnect(con)
+  return(res)
+}
+
+
+
+
+
+
+
+
+#' Get the next update from the queue (maintainer.sqlite)
+#' 
+#' @param filter (character) If "unprocessed", all unprocessed updates are 
+#' returned.
+#' 
+#' @details The queue is an SQLite data base located at 
+#' \code{/maintainer/webapp/maintainer.sqlite} and is accessible with HTTP 
+#' request methods.
+#' 
+#' There are separate queues for "staging" and "production" environments of EDI
+#'
+#' @return A tibble with columns:
+#' \item{index}{(integer) Index of item in queue. This is used for removing the 
+#' item from the queue.}
+#' \item{id}{(character) Data package identifier in the form 
+#' "scope.identifier.revision"}
+#' 
+queue_get_next <- function(filter = NULL) {
+  if (config.environment == "staging") {
+    url <- "https://regan.edirepository.org/maintainer/package-s.lternet.edu"
+  } else if (config.environment == "production") {
+    url <- "https://regan.edirepository.org/maintainer/package.lternet.edu"
+  }
+  if (!is.null(filter)) {
+    url <- paste0(url, "?filter=", filter)
+  }
+  resp <- httr::GET(url)
+  if (httr::status_code(resp) == 200) {
+    res <- readr::read_csv(
+      I(httr::content(resp, as = "text")), 
+      col_names = c("index", "id"), 
+      show_col_types = FALSE, )
+    return(res)
+  }
+}
+
+
+
+
+
+
+
+
 #' Manually insert a record into queue (maintainer.sqlite)
 #'
 #' @param path (character) Path to the maintainer.sqlite
@@ -409,49 +475,6 @@ queue_select_all <- function(path = "./webapp/maintainer.sqlite") {
   res <- RSQLite::dbGetQuery(con, 'SELECT * FROM events')
   RSQLite::dbDisconnect(con)
   return(res)
-}
-
-
-
-
-
-
-
-
-#' Get the next update from the queue (maintainer.sqlite)
-#' 
-#' @param filter (character) If "unprocessed", all unprocessed updates are 
-#' returned.
-#' 
-#' @details The queue is an SQLite data base located at 
-#' \code{/maintainer/webapp/maintainer.sqlite} and is accessible with HTTP 
-#' request methods.
-#' 
-#' There are separate queues for "staging" and "production" environments of EDI
-#'
-#' @return A tibble with columns:
-#' \item{index}{(integer) Index of item in queue. This is used for removing the 
-#' item from the queue.}
-#' \item{id}{(character) Data package identifier in the form 
-#' "scope.identifier.revision"}
-#' 
-queue_get_next <- function(filter = NULL) {
-  if (config.environment == "staging") {
-    url <- "https://regan.edirepository.org/maintainer/package-s.lternet.edu"
-  } else if (config.environment == "production") {
-    url <- "https://regan.edirepository.org/maintainer/package.lternet.edu"
-  }
-  if (!is.null(filter)) {
-    url <- paste0(url, "?filter=", filter)
-  }
-  resp <- httr::GET(url)
-  if (httr::status_code(resp) == 200) {
-    res <- readr::read_csv(
-      I(httr::content(resp, as = "text")), 
-      col_names = c("index", "id"), 
-      show_col_types = FALSE, )
-    return(res)
-  }
 }
 
 
