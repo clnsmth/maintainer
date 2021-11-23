@@ -1,18 +1,18 @@
-#' Are there meaningful differences between EML documents?
+#' Identify potentially meaningful differences between EML documents
 #' 
 #' @description For discovering changes within a dataset that may affect 
-#' downstream processes relying on consistent dataset structure and meaning. 
-#' This is useful in workflow automation where reporting these changes can 
-#' expedite trouble shooting and manual intervention.
+#' downstream processes relying on consistent structure and meaning. This is 
+#' useful in workflow automation where reporting such changes can expedite 
+#' trouble shooting and manual intervention.
 #'
 #' @param newest (xml_document, xml_node) EML of the newest version of a data 
 #' package
 #' @param previous (xml_document, xml_node) EML of the previous version of a 
 #' data package
 #' @param return.all (logical) Return all differences? Default is FALSE, i.e. 
-#' only return meaningful differences. Meaningful differences do not include 
-#' elements expected to change between versions (e.g. number of rows, file 
-#' size, temporal coverage).
+#' only potentially meaningful differences are returned. Meaningful differences 
+#' do not include elements expected to change between versions (e.g. number of 
+#' rows, file size, temporal coverage).
 #'
 #' @return (character) XPaths of nodes that differ between versions
 #' 
