@@ -244,7 +244,7 @@ get_workflows <- function(packageId) {
 check_series_integrity <- function(packageId) {
   id <- stringr::str_remove(packageId, "\\.[:digit:]*$")
   rev <- stringr::str_extract(packageId, "(?<=\\.)[:digit:]*$")
-  queue <- queue_get_next(filter = "unprocessed")$id
+  queue <- queue_get_update(filter = "unprocessed")$id
   if (is.null(queue)) {
     return(FALSE)
   }
@@ -355,7 +355,7 @@ queue_delete <- function(path = "./webapp/maintainer.sqlite",
 #' \item{id}{(character) Data package identifier in the form 
 #' "scope.identifier.revision"}
 #' 
-queue_get_next <- function(filter = NULL) {
+queue_get_update <- function(filter = NULL) {
   if (config.environment == "staging") {
     url <- "https://regan.edirepository.org/maintainer/package-s.lternet.edu"
   } else if (config.environment == "production") {
@@ -423,7 +423,7 @@ queue_insert <- function(path = "./webapp/maintainer.sqlite",
 #' @return (logical) TRUE if empty, otherwise FALSE
 #'
 queue_is_empty <- function() {
-  res <- is.null(queue_get_next(filter = "unprocessed"))
+  res <- is.null(queue_get_update(filter = "unprocessed"))
   return(res)
 }
 
@@ -443,7 +443,7 @@ queue_is_empty <- function() {
 #' 
 #' @details This function marks the corresponding data package as processed
 #' 
-queue_remove <- function(index) {
+queue_remove_update <- function(index) {
   # Only the index number is needed to delete an item from the "production" 
   # and "staging" queues (it's the same queue).
   r <- httr::DELETE(
