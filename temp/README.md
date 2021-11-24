@@ -1,0 +1,1 @@
+## A temporary directory for workflow results
