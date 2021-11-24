@@ -52,7 +52,7 @@ update_ecocomDP <- function(source_id,
   
   # Create plots for the project website
   message("Updating plots")
-  flat = suppressWarnings(ecocomDP::flatten_data(ecocomDP::read_data(from = path)))
+  flat = suppressMessages(ecocomDP::flatten_data(ecocomDP::read_data(from = path)))
   plots <- list(
     diversity = ecocomDP::plot_taxa_diversity(flat, time_window_size = "month"),
     shared = ecocomDP::plot_taxa_shared_sites(flat),
