@@ -54,9 +54,9 @@ update_ecocomDP <- function(source_id,
   message("Updating plots")
   flat = ecocomDP::flatten_data(ecocomDP::read_data(from = path))
   plots <- list(
-    diversity = ecocomDP::plot_taxa_diversity(flat, time_window_size = "month"),
-    shared = ecocomDP::plot_taxa_shared_sites(flat),
-    occurrence = ecocomDP::plot_taxa_occur_freq(flat))
+    diversity = ecocomDP::plot_taxa_diversity(flat, time_window_size = "month", id = Sys.time()),
+    shared = ecocomDP::plot_taxa_shared_sites(flat, id = Sys.time()),
+    occurrence = ecocomDP::plot_taxa_occur_freq(flat, id = Sys.time()))
 
   # Save plots to the website ./docs/assets directory
   r <- lapply(
