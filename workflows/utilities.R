@@ -602,7 +602,8 @@ with_timeout <- function(expr, limit) {
   setTimeLimit(cpu = limit, elapsed = limit, transient = TRUE)
   on.exit(setTimeLimit(cpu = Inf, elapsed = Inf, transient = FALSE))
   tryCatch({
-    eval(parse(text = expr_txt))
+    pf <- parent.frame()
+    eval(parse(text = expr_txt), envir = pf)
   }, error = function(e) {
     stop(e$message)
   })
