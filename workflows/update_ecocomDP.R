@@ -52,7 +52,7 @@ update_ecocomDP <- function(source_id,
   
   # Create plots for the project website
   message("Updating plots")
-  flat = ecocomDP::flatten_data(ecocomDP::read_data(from = path))
+  flat = suppressWarnings(ecocomDP::flatten_data(ecocomDP::read_data(from = path)))
   plots <- list(
     diversity = ecocomDP::plot_taxa_diversity(flat, time_window_size = "month", id = Sys.time()),
     shared = ecocomDP::plot_taxa_shared_sites(flat, id = Sys.time()),
@@ -73,6 +73,7 @@ update_ecocomDP <- function(source_id,
 
   # Commit plots and push to GitHub
   repo <- git2r::repository()
+  git2r::pull(repo)
   changes <- paste0("./docs/assets/", names(plots), ".png")
   git2r::add(path = changes)
   try(git2r::commit(message = "Update plots"))
