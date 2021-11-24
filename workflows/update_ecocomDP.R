@@ -82,7 +82,7 @@ update_ecocomDP <- function(source_id,
   message("Pushing plots to GitHub")
   repo <- git2r::repository()
   git2r::pull(repo)
-  changes <- c(paste0("./docs/assets/", names(plots), ".png"), f)
+  changes <- c(paste0("./docs/assets/", names(plots), ".png"), resmd)
   git2r::add(path = changes)
   try(git2r::commit(message = "Update plots"))
   cred <- git2r::cred_user_pass(
