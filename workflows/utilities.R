@@ -602,13 +602,9 @@ with_timeout <- function(expr, limit) {
   setTimeLimit(cpu = limit, elapsed = limit, transient = TRUE)
   on.exit(setTimeLimit(cpu = Inf, elapsed = Inf, transient = FALSE))
   tryCatch({
-    resp <- eval(parse(text = expr_txt))
+    eval(parse(text = expr_txt))
   }, error = function(e) {
-    if (grepl("reached elapsed time limit|reached CPU time limit", e$message)) {
-      stop(e$message)
-    } else {
-      resp[1]
-    }
+    stop(e$message)
   })
 }
 
