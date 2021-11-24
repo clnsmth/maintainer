@@ -54,9 +54,9 @@ update_ecocomDP <- function(source_id,
   message("Updating plots")
   flat = suppressWarnings(ecocomDP::flatten_data(ecocomDP::read_data(from = path)))
   plots <- list(
-    diversity = ecocomDP::plot_taxa_diversity(flat, time_window_size = "month", id = Sys.time()),
-    shared = ecocomDP::plot_taxa_shared_sites(flat, id = Sys.time()),
-    occurrence = ecocomDP::plot_taxa_occur_freq(flat, id = Sys.time()))
+    diversity = ecocomDP::plot_taxa_diversity(flat, time_window_size = "month"),
+    shared = ecocomDP::plot_taxa_shared_sites(flat),
+    occurrence = ecocomDP::plot_taxa_occur_freq(flat))
 
   # Save plots to the website ./docs/assets directory
   r <- lapply(
@@ -71,11 +71,18 @@ update_ecocomDP <- function(source_id,
         bg = "white")
     })
 
-  # Commit plots and push to GitHub
+  # Update time stamp on results page
+  resmd <-paste0("./docs/results.md")
+  res <- readLines(resmd)
+  i <- grep("Last update: ", res)
+  res[i] <- paste0("Last update: ", format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z"))
+  writeLines(res, resmd)
+  
+  # Commit plots + results page and push to GitHub
   message("Pushing plots to GitHub")
   repo <- git2r::repository()
   git2r::pull(repo)
-  changes <- paste0("./docs/assets/", names(plots), ".png")
+  changes <- c(paste0("./docs/assets/", names(plots), ".png"), f)
   git2r::add(path = changes)
   try(git2r::commit(message = "Update plots"))
   cred <- git2r::cred_user_pass(
