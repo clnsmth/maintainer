@@ -72,14 +72,20 @@ update_ecocomDP <- function(source_id,
     })
 
   # Commit plots and push to GitHub
+  message("Setting repo")
   repo <- git2r::repository()
+  message("Pulling")
   git2r::pull(repo)
   changes <- paste0("./docs/assets/", names(plots), ".png")
+  message("Adding changes")
   git2r::add(path = changes)
+  message("Committing changes")
   try(git2r::commit(message = "Update plots"))
+  message("Setting credentials")
   cred <- git2r::cred_user_pass(
     username = config.github.user,
     password = config.github.pass)
+  message("Pushing w/timeout")
   with_timeout(
     expr = git2r::push(repo, "origin", refspec = "refs/heads/main", credentials = cred),
     limit = 10)
