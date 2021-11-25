@@ -1,3 +1,2 @@
-# /logs
-
-A directory for processing logs created by the workflow_manager() function.
+# logs
+Contains log files output by the workflow manager (workflow_manager.R)

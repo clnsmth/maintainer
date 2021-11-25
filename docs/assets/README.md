@@ -1,2 +1,2 @@
 # assets
-Where plots (etc.) are stored for reference by the GitHub pages website
+Contains files (e.g. images) referenced within the website

@@ -1,1 +1,2 @@
-## A temporary directory for workflow results
+# temp
+A place to write workflow outputs. Is also web accessible.
