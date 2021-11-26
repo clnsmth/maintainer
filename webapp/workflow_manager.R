@@ -171,7 +171,8 @@ workflow_manager <- function() {
 # Source the workflow configuration and functions -----------------------------
 
 scripts <- list.files("./workflows", full.names = TRUE)
-invisible(sapply(scripts, source))
+readme <- grepl(".README.md$", scripts)
+invisible(sapply(scripts[!readme], source))
 
 # Run the workflow manager ----------------------------------------------------
 
