@@ -82,9 +82,7 @@ cp config.py.template /config.py
 vi config.py
 ```
 
-Line 20 - Add your secret key.
-
-Line 21 - "True" allows mocked POST requests to activate the maintainer, which is helpful when testing during the deployment phase. Set to "False" once successfully deployed and not debugging.
+Line 20 - Add your secret key. 
 
 Line 23 - Modify path to the webapp. Replace "pasta" with your user name.
 
@@ -149,39 +147,21 @@ systemctl start maintainer.service
 systemctl status maintainer.service
 ```
 
-### 9. Restart Nginx
+### 9. Restart Nginx and Logout
 
 In order for changes to be picked up, we need to restart.
 
 ```
 systemctl restart nginx.service
-```
-
-### 10. Restart `maintainer` and Logout
-
-Anytime changes are made to `maintainer` files in `deployment/` or `webapp/`, you'll need to restart the maintainer.service, otherwise the changes will not apply.
-
-```
-systemctl restart maintainer.service
 logout # Once for root user
 logout # And again for you
 ```
 
-### 11. Testing
 
-There are a few ways to check if the deployment was successful:
 
-1. In a web browser, enter the address of your web service endpoint (e.g. https://regan.edirepository.org/maintainer). A successful deployment will return a message stating "Method Not Allowed". The web browser is performing an HTTP GET request and the end point only accepts POST requests, thus the "Method Not Allowed" message.
 
-2. Send an imitated event notification from a local R session with the utility function `send_mock_notification()` 
 
-```
-source("workflows/utilities.R")
-send_mock_notification("https://my.repository.org/maintainer")
-```
 
-Then check for an expected response. A couple places to look are:
 
-- An email notification listing the data package identifier. This will only work if your `webapp/config.py` is configured to send emails, and if the corresponding account accepts access by less secure apps.
 
-- Creation of a new log file in `logs/`.
+

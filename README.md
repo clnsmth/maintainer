@@ -11,10 +11,10 @@ EDI notifications are passed as HTTP requests to the Nginx web server which is a
 FIGURE - Sequence diagram
 
 ## Getting Started
-* Fork the `maintainer` repository
-* [Deploy to web server](https://github.com/clnsmth/maintainer/blob/main/docs/deployment.md)
-* Subscribe to notifications
-* Customize workflows
+* Fork and clone the `maintainer` repository
+* [Add your data processing workflows](https://github.com/clnsmth/maintainer/blob/main/docs/add_workflows.md)
+* [Deploy to a web server](https://github.com/clnsmth/maintainer/blob/main/docs/deployment.md)
+* [Subscribe to notifications](https://github.com/clnsmth/maintainer/blob/main/docs/subscribe.md)
 
 ## Getting Help 
 * FAQ
