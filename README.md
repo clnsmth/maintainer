@@ -12,7 +12,7 @@ FIGURE - Sequence diagram
 
 ## Getting Started
 * Fork the `maintainer` repository
-* Deploy to web server
+* [Deploy to web server](https://github.com/clnsmth/maintainer/blob/main/docs/deployment.md)
 * Subscribe to notifications
 * Customize workflows
 
