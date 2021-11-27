@@ -26,6 +26,3 @@ Updates are listed in [News](https://github.com/clnsmth/maintainer/blob/master/N
 
 ## Road Map
 * Docker - Create a Docker instance to ease deployment
-
-## Contributing
-Please contribute! See our [code of conduct](https://github.com/clnsmth/maintainer/blob/master/CODE_OF_CONDUCT.md) and [contributing guidelines](https://github.com/clnsmth/maintainer/blob/master/CONTRIBUTING.md) for details.
