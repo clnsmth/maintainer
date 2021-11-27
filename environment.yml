@@ -50,4 +50,4 @@ dependencies:
   - xz=5.2.5
   - yaml=0.2.5
   - zlib=1.2.11
-prefix: /home/servilla/anaconda3/envs/maintainer
+prefix: /home/pasta/anaconda3/envs/maintainer

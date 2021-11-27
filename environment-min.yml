@@ -11,4 +11,4 @@ dependencies:
   - sqlalchemy=1.3.20
   - pytest=6.1.1
   - pandoc=2.12
-prefix: /home/servilla/anaconda3/envs/maintainer
+prefix: /home/pasta/anaconda3/envs/maintainer
