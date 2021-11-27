@@ -114,6 +114,5 @@ maintainer.Rproj
 *config.txt
 /logs/
 lock.txt
-test.R
 webapp/maintainer.sqlite
 README.md
