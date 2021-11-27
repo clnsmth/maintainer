@@ -101,7 +101,7 @@ workflow_manager <- function() {
     
     # Identify the update -----------------------------------------------------
     
-    new_pkg <- queue_get_update()
+    new_pkg <- queue_get_update("https://regan.edirepository.org/maintainer")
     message("Found an update (", new_pkg$id, ")")
     
     # Check series integrity --------------------------------------------------

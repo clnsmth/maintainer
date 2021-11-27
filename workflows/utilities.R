@@ -244,7 +244,9 @@ get_workflows <- function(packageId) {
 check_series_integrity <- function(packageId) {
   id <- stringr::str_remove(packageId, "\\.[:digit:]*$")
   rev <- stringr::str_extract(packageId, "(?<=\\.)[:digit:]*$")
-  queue <- queue_get_update(filter = "unprocessed")$id
+  queue <- queue_get_update(
+    url = "https://regan.edirepository.org/maintainer", 
+    filter = "unprocessed")$id
   if (is.null(queue)) {
     return(FALSE)
   }
@@ -340,6 +342,8 @@ queue_delete <- function(path = "./webapp/maintainer.sqlite",
 
 #' Get the next update from the queue (maintainer.sqlite)
 #' 
+#' @param url (character) The address of the web service endpoint listening for 
+#' event notifications.
 #' @param filter (character) If "unprocessed", all unprocessed updates are 
 #' returned.
 #' 
@@ -355,11 +359,11 @@ queue_delete <- function(path = "./webapp/maintainer.sqlite",
 #' \item{id}{(character) Data package identifier in the form 
 #' "scope.identifier.revision"}
 #' 
-queue_get_update <- function(filter = NULL) {
+queue_get_update <- function(url, filter = NULL) {
   if (config.environment == "staging") {
-    url <- "https://regan.edirepository.org/maintainer/package-s.lternet.edu"
+    url <- paste0(url, "/package-s.lternet.edu")
   } else if (config.environment == "production") {
-    url <- "https://regan.edirepository.org/maintainer/package.lternet.edu"
+    url <- paste0(url, "//package.lternet.edu")
   }
   if (!is.null(filter)) {
     url <- paste0(url, "?filter=", filter)
@@ -511,50 +515,6 @@ queue_update <- function(path = "./webapp/maintainer.sqlite",
 
 
 
-#' Run the maintainer
-#' 
-#' @description Run a remotely deployed maintainer with its current 
-#' state/configuration. This function is helpful when a manual reboot of the 
-#' maintainer is needed to resume processing, possibly after a workflow error 
-#' and subsequent fix.
-#' 
-#' @details This function randomly selects a data package identifier from the 
-#' repository environment specified by the global variable 
-#' \code{config.environment} and submits an HTTP POST request to the listener. 
-#' This random package identifier is added to the queue, with the \code{env} 
-#' field of the maintainer.sqlite database set to "localhost", which is 
-#' recognized as being a "test" post and not an actual update, thus having not 
-#' effect on the list of items to process other than cluttering the database 
-#' with some extraneous items.
-#'
-run_maintainer <- function() {
-  idle <- TRUE
-  i <- 1
-  while (idle) {
-    identifiers <- suppressMessages(EDIutils::api_list_data_package_identifiers("edi", config.environment))
-    identifier <- sample(identifiers, 1)
-    revisions <- suppressMessages(EDIutils::api_list_data_package_revisions("edi", identifier, environment = config.environment))
-    revision <- sample(revisions, 1)
-    packageId <- paste(c("edi", identifier, revision), collapse = ".")
-    resp <- httr::POST(
-      url = "https://regan.edirepository.org/maintainer", 
-      body = packageId)
-    idle <- httr::status_code(resp) != 200
-    i <- i + 1
-    if (i == 3) {
-      idle <- FALSE
-      message("Failed on 3 consequtive attempts. Taking a break.")
-    }
-  }
-}
-
-
-
-
-
-
-
-
 #' Send email to a Gmail account
 #'
 #' @param from (character) Email address
@@ -581,6 +541,54 @@ send_email <- function(from,
                smtp.relay, "-xu", relay.user, "-xp", relay.user.pass, "-u", 
                subject, "-m", msg)
   system(cmd)
+}
+
+
+
+
+
+
+
+#' Imitate an event notification sent from the EDI Data Repository
+#' 
+#' @param url (character) The address of the web service endpoint listening for 
+#' event notifications.
+#'
+#' @description This function is good for testing a remotely deployed 
+#' maintainer or restarting one that has stalled out after an error.  It 
+#' simulates an event notification sent from the EDI Data Repository, which is
+#' accepted into the queue (maintainer.sqlite), and which runs the workflow 
+#' manager.
+#' 
+#' @details This function randomly selects a data package identifier from the 
+#' repository environment specified by the global variable 
+#' \code{config.environment} and submits an HTTP POST request to the listener. 
+#' This random package identifier is added to the queue, with the \code{env} 
+#' field of the maintainer.sqlite database set to "localhost", which is 
+#' recognized as being a "test" POST and not an actual update, thus having not 
+#' effect on the list of items to process other than cluttering the database 
+#' with some extraneous items. These can be manually removed with the 
+#' \code{queue_*()} helper functions.
+#'
+send_mock_notification <- function(url) {
+  idle <- TRUE
+  i <- 1
+  while (idle) {
+    identifiers <- suppressMessages(EDIutils::api_list_data_package_identifiers("edi", config.environment))
+    identifier <- sample(identifiers, 1)
+    revisions <- suppressMessages(EDIutils::api_list_data_package_revisions("edi", identifier, environment = config.environment))
+    revision <- sample(revisions, 1)
+    packageId <- paste(c("edi", identifier, revision), collapse = ".")
+    resp <- httr::POST(
+      url = url, 
+      body = packageId)
+    idle <- httr::status_code(resp) != 200
+    i <- i + 1
+    if (i == 3) {
+      idle <- FALSE
+      message("Failed on 3 consequtive attempts. Taking a break.")
+    }
+  }
 }
 
 
