@@ -1,15 +1,10 @@
-# Global variables for workflow configuration
-config.environment <- "staging" # EDI repository environment. Can be: "production", "staging", "development"
-config.url.dwnld <- "" # URL endpoint through which the EDI repository can download files
-config.url.http <- "" # URL endpoint where EDI event notifications are sent
-config.edi.user <- "" # EDI user name
-config.edi.pass <- "" # EDI user password
-config.github.user <- "" # GitHub user name
-config.github.pass <- "" # GitHub password
-config.email.address <- "" # Gmail address for notifications (only Gmail is currently supported)
-config.email.pass <- "" # Password for config.email.address
+# REQUIRED --------------------------------------------------------------------
 
-# Libraries used in workflows
+# Global variables used by maintainer
+config.url.http <- "" # URL endpoint where EDI event notifications are sent
+config.environment <- "production" # EDI repository environment. Can be: "production", "staging", "development"
+
+# Libraries used by maintainer
 library(EDIutils)
 library(EML)
 library(git2r)
@@ -17,3 +12,16 @@ library(httr)
 library(readr)
 library(RSQLite)
 library(xml2)
+
+# OPTIONAL --------------------------------------------------------------------
+
+# Global variables for user defined workflows
+config.url.dwnld <- "" # URL endpoint through which the EDI repository can download files
+config.edi.user <- "" # EDI user name
+config.edi.pass <- "" # EDI user password
+config.github.user <- "" # GitHub user name
+config.github.pass <- "" # GitHub password
+config.email.address <- "" # Gmail address for notifications (only Gmail is currently supported)
+config.email.pass <- "" # Password for config.email.address
+
+# Libraries for user defined workflows
