@@ -85,7 +85,7 @@ workflow_manager <- function() {
   
   # Check the queue for updates and stop if there are none
   msg("Checking for updates")
-  if (queue_is_empty()) {
+  if (queue_is_empty(url = config.url.http)) {
     message("No updates found")
     return(NULL)
   }
@@ -97,11 +97,11 @@ workflow_manager <- function() {
   # because the listener only calls upon receiving an update, these updates
   # wouldn't otherwise be processed.
   
-  while (!queue_is_empty()) {
+  while (!queue_is_empty(url = config.url.http)) {
     
     # Identify the update -----------------------------------------------------
     
-    new_pkg <- queue_get_update("https://regan.edirepository.org/maintainer")
+    new_pkg <- queue_get_update(url = config.url.http)
     message("Found an update (", new_pkg$id, ")")
     
     # Check series integrity --------------------------------------------------
@@ -160,7 +160,7 @@ workflow_manager <- function() {
     # Remove the update from the queue ----------------------------------------
     
     msg("Removing ", new_pkg$id, " from the queue")
-    r <- queue_remove_update(new_pkg$index)
+    r <- queue_remove_update(url = config.url.http, index = new_pkg$index)
 
   }
   
