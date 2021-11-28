@@ -23,6 +23,3 @@ FIGURE - Sequence diagram
 
 ## News
 Updates are listed in [News](https://github.com/clnsmth/maintainer/blob/master/NEWS.md)
-
-## Road Map
-* Docker - Create a Docker instance to ease deployment

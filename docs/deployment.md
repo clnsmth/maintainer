@@ -157,7 +157,16 @@ In order for changes to be picked up, we need to restart.
 systemctl restart nginx.service
 ```
 
-### 10. Restart `maintainer` and Logout
+### 10. Make `temp/` Web Accessible
+
+If you will be publishing to a data repository, then you will need to make a web accessible directory from which files can be downloaded. Must be logged in as root user.
+
+```
+cd /var/www/html
+ln -s /home/pasta/maintainer temp # Replace "pasta" with your user name
+```
+
+### 11. Restart `maintainer` and Logout
 
 Anytime changes are made to `maintainer` files in `deployment/` or `webapp/`, you'll need to restart the maintainer.service, otherwise the changes will not apply.
 
@@ -167,7 +176,7 @@ logout # Once for root user
 logout # And again for you
 ```
 
-### 11. Testing
+### 12. Testing
 
 There are a few ways to check if the deployment was successful:
 
