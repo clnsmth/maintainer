@@ -49,7 +49,7 @@ update_DwCA <- function(source_id,
   
   # Clear workspace
   message("Clearing workspace")
-  files <- list.files(config.path, full.names = TRUE)
+  files <- list.files(path, full.names = TRUE)
   file.remove(files)
   
 }

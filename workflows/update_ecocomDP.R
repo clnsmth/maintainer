@@ -104,7 +104,7 @@ update_ecocomDP <- function(source_id,
   
   # Clear workspace
   message("Clearing workspace")
-  files <- list.files(config.path, full.names = TRUE)
+  files <- list.files(path, full.names = TRUE)
   file.remove(files)
 
 }
@@ -122,8 +122,7 @@ update_ecocomDP <- function(source_id,
 #' conversion script listed in \code{eml} will be used to create the derived
 #' data package of the newest L0.
 #' @param path (character) Directory to which create_ecocomDP.R will be written. 
-#' Should be the same directory tables and metadata will be written to. Is 
-#' controlled by the \code{config.path} global variable.
+#' Should be the same directory tables and metadata will be written to.
 #' 
 #' @details The script is downloaded to \code{path} and then parsed to identify 
 #' R libraries used by the script which are installed if not already.

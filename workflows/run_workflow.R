@@ -15,20 +15,20 @@ run_workflow <- function(workflow, source_id) {
     
     update_ecocomDP(
       source_id = source_id,
-      path = config.path, 
-      url = config.www, 
-      user_id = config.user.id,
-      user_pass = config.user.pass,
+      path = "./temp", 
+      url = config.url.dwnld, 
+      user_id = config.edi.user,
+      user_pass = config.edi.pass,
       environment = config.environment)
     
   } else if (workflow == "update_DwCA") {
     
     update_DwCA(
       source_id = source_id,
-      path = config.path,
-      url = config.www,
-      user_id = config.user.id,
-      user_pass = config.user.pass,
+      path = "./temp",
+      url = config.url.dwnld,
+      user_id = config.edi.user,
+      user_pass = config.edi.pass,
       environment = config.environment)
     
   }

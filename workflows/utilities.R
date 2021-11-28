@@ -424,10 +424,12 @@ queue_insert <- function(path = "./webapp/maintainer.sqlite",
 
 #' Check if there are any unprocessed items in the queue (maintainer.sqlite)
 #'
+#' @param url (character) The address of the web service endpoint listening for 
+#' event notifications.
 #' @return (logical) TRUE if empty, otherwise FALSE
 #'
-queue_is_empty <- function() {
-  res <- is.null(queue_get_update(filter = "unprocessed"))
+queue_is_empty <- function(url) {
+  res <- is.null(queue_get_update(url, filter = "unprocessed"))
   return(res)
 }
 
@@ -440,6 +442,8 @@ queue_is_empty <- function() {
 
 #' Remove an update from the queue (maintainer.sqlite)
 #'
+#' @param url (character) The address of the web service endpoint listening for 
+#' event notifications.
 #' @param index (integer) Index of item to remove. References the "index" field.
 #'
 #' @return (logical) Indicates whether the item was successfully removed (i.e.
@@ -447,11 +451,11 @@ queue_is_empty <- function() {
 #' 
 #' @details This function marks the corresponding data package as processed
 #' 
-queue_remove_update <- function(index) {
+queue_remove_update <- function(url, index) {
   # Only the index number is needed to delete an item from the "production" 
   # and "staging" queues (it's the same queue).
   r <- httr::DELETE(
-    paste0("https://regan.edirepository.org/maintainer/", index))
+    paste0(url, index))
   if (httr::status_code(r) == 200) {
     return(TRUE)
   } else {
