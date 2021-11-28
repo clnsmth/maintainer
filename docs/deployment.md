@@ -96,7 +96,20 @@ Line 33 - Replace "regan.edirepository.org" with your server name.
 
 Lines 42-44 - Credentials for receiving an email each time an update occurs. The email contains a subject line and body with the updated data package identifier. Only Gmail is currently supported and requires “Less secure app access” to your account. [See here for more details](https://support.google.com/accounts/answer/6010255?hl=en). _Be sure to comment out these lines if not using this feature, otherwise an faulty configuration will prevent the maintainer app from executing._
 
-## 7. Setup system d
+## 7. Configure the Workflow Manager
+
+Create a copy of the template and configure.
+
+```
+cp config.txt.template /config.txt
+vi config.txt
+```
+
+Line 4 - Enter the address of your web service endpoint (e.g. https://regan.edirepository.org/maintainer).
+
+Line 5 - Enter the tier of the EDI repository your workflow will run in.
+
+## 8. Setup system d
 
 Must be root user to do this.
 
@@ -139,7 +152,7 @@ Test the Nginx configuration.
 nginx -t
 ```
 
-## 8. Enable `maintainer`
+## 9. Enable `maintainer`
 
 This installs the start up script so when the system starts it will boot up. If you don't do this, then you will have to manually boot it up whenever you want to access it.
 
@@ -149,7 +162,7 @@ systemctl start maintainer.service
 systemctl status maintainer.service
 ```
 
-## 9. Restart Nginx
+## 10. Restart Nginx
 
 In order for changes to be picked up, we need to restart.
 
@@ -157,7 +170,7 @@ In order for changes to be picked up, we need to restart.
 systemctl restart nginx.service
 ```
 
-## 10. Make `temp/` Web Accessible
+## 11. Make `temp/` Web Accessible
 
 If you will be publishing to a data repository, then you will need to make a web accessible directory from which files can be downloaded. Must be logged in as root user.
 
@@ -166,7 +179,7 @@ cd /var/www/html
 ln -s /home/pasta/maintainer temp # Replace "pasta" with your user name
 ```
 
-## 11. Restart `maintainer` and Logout
+## 12. Restart `maintainer` and Logout
 
 Anytime changes are made to `maintainer` files in `deployment/` or `webapp/`, you'll need to restart the maintainer.service, otherwise the changes will not apply.
 
@@ -176,7 +189,7 @@ logout # Once for root user
 logout # And again for you
 ```
 
-## 12. Testing
+## 13. Test
 
 There are a few ways to check if the deployment was successful:
 
