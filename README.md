@@ -17,7 +17,7 @@ FIGURE - Sequence diagram
 * [Subscribe to Notifications](https://github.com/clnsmth/maintainer/blob/main/docs/subscribe.md)
 
 ## Getting Help 
-* Open a ticket in the issue tracker
+* [Open an issue]()
 * Contact us at info@environmentaldatainitiative.org
 
 ## News
