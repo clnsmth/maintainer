@@ -2,7 +2,7 @@
 
 To create event subscriptions:
 
-### 1. Login to the EDI Data Portal
+## 1. Login to the EDI Data Portal
 
 There are three tiers to choose from:
 
@@ -14,7 +14,7 @@ There are three tiers to choose from:
 
 Login to the tier containing the data package you want a subscription to. _NOTE: The three repository tiers are completely independent of each other. A data package with identifier "edi.100.1" in production may be completely different than "edi.100.1" in staging._
 
-### 2. Create a subscription
+## 2. Create a subscription
 
 Navigate to the subscription page (TOOLS > Event Subscriptions).
 

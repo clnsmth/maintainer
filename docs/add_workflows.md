@@ -1,10 +1,10 @@
 # Add Workflows
 
-### Overview
+## Overview
 
 Each time an event notification is received the workflow manager (`webapp/workflow_manager.R`) sources the `workflows/` directory (containing user defined workflows and configurations), initializes session logging and other high level tasks, then begins iterating through each unprocessed updates in the queue (`webapp/maintainer.sqlite`) beginning with the oldest. The data package identifier of the update is then used to find the associated workflow name, and finally `run_workflow()` is called to execute the corresponding workflow code.
 
-### Step-by-Step
+## Step-by-Step
 
 1. Add an entry to `webapp/workflow_map.csv`
 

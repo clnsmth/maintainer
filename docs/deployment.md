@@ -20,7 +20,7 @@ git clone https://github.com/clnsmth/maintainer.git
 cd maintainer
 ```
 
-### 2. Configure Nginx
+## 2. Configure Nginx
 
 Configure the Nginx web server for `maintainer`.
 
@@ -38,7 +38,7 @@ Line 3 - Replace "regan.edirepository.org" with your server name.
 :wq
 ```
 
-### 3. Configure `maintainer` to Start Up at Boot Time
+## 3. Configure `maintainer` to Start Up at Boot Time
 
 ```
 vi deployment/maintainer.service
@@ -52,7 +52,7 @@ Line 9 - Path to Python environment that will be running the `maintainer` servic
 
 Line 10 - Tells the system how to start this service. Note: This references the initialization file. Replace "pasta" with your user name.
 
-### 4. Configure uWSGI
+## 4. Configure uWSGI
 
 ```
 vi deployment/maintainer.ini
@@ -60,7 +60,7 @@ vi deployment/maintainer.ini
 
 Line 7 - Replace "pasta" with your user name.
 
-### 5. Create the Virtual Environment
+## 5. Create the Virtual Environment
 
 Create the virtual python environment in which `maintainer` will run and which is populated by dependencies listed in `environment.yml`.
 
@@ -69,7 +69,7 @@ conda env create --file environment.yml
 conda activate maintainer 
 ```
 
-### 6. Configure the Python Listener
+## 6. Configure the Python Listener
 
 ```
 cd webapp
@@ -96,7 +96,7 @@ Line 33 - Replace "regan.edirepository.org" with your server name.
 
 Lines 42-44 - Credentials for receiving an email each time an update occurs. The email contains a subject line and body with the updated data package identifier. Only Gmail is currently supported and requires “Less secure app access” to your account. [See here for more details](https://support.google.com/accounts/answer/6010255?hl=en). _Be sure to comment out these lines if not using this feature, otherwise an faulty configuration will prevent the maintainer app from executing._
 
-### 7. Setup system d
+## 7. Setup system d
 
 Must be root user to do this.
 
@@ -139,7 +139,7 @@ Test the Nginx configuration.
 nginx -t
 ```
 
-### 8. Enable `maintainer`
+## 8. Enable `maintainer`
 
 This installs the start up script so when the system starts it will boot up. If you don't do this, then you will have to manually boot it up whenever you want to access it.
 
@@ -149,7 +149,7 @@ systemctl start maintainer.service
 systemctl status maintainer.service
 ```
 
-### 9. Restart Nginx
+## 9. Restart Nginx
 
 In order for changes to be picked up, we need to restart.
 
@@ -157,7 +157,7 @@ In order for changes to be picked up, we need to restart.
 systemctl restart nginx.service
 ```
 
-### 10. Make `temp/` Web Accessible
+## 10. Make `temp/` Web Accessible
 
 If you will be publishing to a data repository, then you will need to make a web accessible directory from which files can be downloaded. Must be logged in as root user.
 
@@ -166,7 +166,7 @@ cd /var/www/html
 ln -s /home/pasta/maintainer temp # Replace "pasta" with your user name
 ```
 
-### 11. Restart `maintainer` and Logout
+## 11. Restart `maintainer` and Logout
 
 Anytime changes are made to `maintainer` files in `deployment/` or `webapp/`, you'll need to restart the maintainer.service, otherwise the changes will not apply.
 
@@ -176,7 +176,7 @@ logout # Once for root user
 logout # And again for you
 ```
 
-### 12. Testing
+## 12. Testing
 
 There are a few ways to check if the deployment was successful:
 
