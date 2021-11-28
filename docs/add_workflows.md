@@ -1,4 +1,4 @@
-# Adding workflows
+# Add Workflows
 
 ### Overview
 

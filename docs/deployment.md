@@ -1,10 +1,10 @@
-# Deployment
+# Deploy to Web Server
 
 There are two parts of the deployment. First, setting up the Nginx web server to point back to something Nginx can forward a request to, and to listen for a response and turn that response back to the client. Second, which is a little more involved, is set up of the system control file.
 
 Below is an example deployment on Linux Ubuntu 18.04.6 with an Nginx web server for the user `pasta`. Other top level dependencies are listed in `environment-min.yml`. This deployment assumes there is an SSL certificate setup by Let's Encrypt and the deploying person has root user access.
 
-### 1. Login and Clone
+## 1. Login and Clone
 
 Login to the server and sudo to the user under which `maintainer` will be deployed.
 

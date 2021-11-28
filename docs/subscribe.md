@@ -1,4 +1,4 @@
-# Subscribing to Event Notifications
+# Subscribe to Notifications
 
 To create event subscriptions:
 
